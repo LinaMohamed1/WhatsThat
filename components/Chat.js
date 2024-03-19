@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, TextInput, FlatList, Alert, Modal } from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, FlatList, Alert, Modal, ScrollView, Image, TouchableOpacity } from 'react-native'; // Import ScrollView
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ChatDetails from './ChatDetails';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 const BASE_URL = 'http://localhost:3333/api/1.0.0';
 
@@ -13,7 +14,16 @@ export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [chatName, setChatName] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [chatDetails, setChatDetails] = useState(null); 
+  const [chatDetails, setChatDetails] = useState(null);
+  const [showNewChatModal, setShowNewChatModal] = useState(false);
+  const [showSecondModal, setShowSecondModal] = useState(false); // State to control the second modal
+  const [showContactsModal, setShowContactsModal] = useState(false);
+  const [contacts, setContacts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [addContactsModalList, setAddContactsModalList] = useState(false);
+  const [removeContactsModalList, setRemoveContactsModalList] = useState(false);
+  
+
 
   useEffect(() => {
     const getTokenAndFetchChats = async () => {
@@ -25,54 +35,203 @@ export default function Chat() {
         console.error('Error getting token:', error);
       }
     };
-  
+
     getTokenAndFetchChats();
   }, []);
-  
+
   useEffect(() => {
     if (token) {
       fetchChats();
     }
   }, [token]);
+
+
+  const fetchContacts = async () => {
+    try {
+      setLoading(true);
+      const token = await AsyncStorage.getItem('token');
+      // Reset contacts state to an empty array before fetching new contacts
+      setContacts([]);
+      const response = await fetch('http://localhost:3333/api/1.0.0/contacts', {
+        headers: {
+          'X-Authorization': token,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+  
+        // Fetch profile pictures for each contact
+        await Promise.all(data.map(async (contact) => {
+          try {
+            const photoResponse = await fetch(`http://localhost:3333/api/1.0.0/user/${contact.user_id}/photo`, {
+              headers: {
+                'X-Authorization': token,
+              },
+            });
+            if (photoResponse.ok) {
+              const photoBlob = await photoResponse.blob();
+              const reader = new FileReader();
+              reader.onload = () => {
+                const base64data = reader.result.split(',')[1];
+                setContacts(prevContacts => [...prevContacts, { ...contact, photo: base64data }]);
+              };
+              reader.readAsDataURL(photoBlob);
+            } else {
+              // If profile picture not found, set default image
+              setContacts(prevContacts => [...prevContacts, { ...contact, photo: noProfileImage }]);
+            }
+          } catch (error) {
+            console.error('Error fetching photo:', error);
+          }
+        }));
+        setShowContactsModal(true);
+      } else {
+        console.error('Failed to fetch contacts:', response.status);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+      setLoading(false);
+    }
+  };
   
   
 
+  const createChat = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await fetch('http://localhost:3333/api/1.0.0/chat', {
+        method: 'POST',
+        headers: {
+          'X-Authorization': token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: chatName // Example name, you can change it as needed
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Chat ID:', data.chat_id);
+      } else {
+        console.error('Failed to create chat:', response.status);
+      }
+    } catch (error) {
+      console.error('Error creating chat:', error);
+    }
+  };
+
+
+  const updateChatInformation = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await fetch('http://localhost:3333/api/1.0.0/chat', {
+        method: 'PATCH',
+        headers: {
+          'X-Authorization': token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: chatName // Example name, you can change it as needed
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Chat ID:', data.chat_id);
+      } else {
+        console.error('Failed to edit chat:', response.status);
+      }
+    } catch (error) {
+      console.error('Error editing chat:', error);
+    }
+  };
+
+
+  const addUserToChat = async (chatId, userId) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const url = `http://localhost:3333/api/1.0.0/chat/${chatId}/user/${userId}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-Authorization': token,
+        },
+      });
+      if (response.ok) {
+        console.log('User added to chat successfully');
+        // Optionally, you can fetch updated chat details or perform any other actions here
+      } else {
+        console.error('Failed to add user to chat:', response.status);
+        // Handle error condition, e.g., show an error message to the user
+      }
+    } catch (error) {
+      console.error('Error adding user to chat:', error);
+      // Handle error condition, e.g., show an error message to the user
+    }
+  };
+
+
+  const removeUserFromChat = async (chatId, userId) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const url = `http://localhost:3333/api/1.0.0/chat/${chatId}/user/${userId}`;
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'X-Authorization': token,
+        },
+      });
+      if (response.ok) {
+        console.log('User removed from chat successfully');
+        // Optionally, you can fetch updated chat details or perform any other actions here
+      } else {
+        console.error('Failed to remove user from chat:', response.status);
+        // Handle error condition, e.g., show an error message to the user
+      }
+    } catch (error) {
+      console.error('Error removing user from chat:', error);
+      // Handle error condition, e.g., show an error message to the user
+    }
+  };
+  
+  
+
+
   const fetchChats = async () => {
     try {
-      console.log('Fetching chats...'); // Add console log to indicate the start of fetching chats
-      console.log('Token:', token); // Log the token to verify if it's correctly set
-  
+      console.log('Fetching chats...');
+      console.log('Token:', token);
+
       const response = await fetch(`${BASE_URL}/chat`, {
         headers: {
           'X-authorization': token,
         },
       });
-  
-      console.log('Response status:', response.status); // Log the response status
-  
+
+      console.log('Response status:', response.status);
+
       if (response.ok) {
         const data = await response.json();
-        console.log('Fetched chats:', data); // Log the fetched chats data
-        setChats(data); // Update chats state with the fetched data
+        console.log('Fetched chats:', data);
+        setChats(data);
       } else {
         console.error('Failed to fetch chats:', response.status);
       }
     } catch (error) {
       console.error('Error fetching chats:', error);
     }
-  };  
-  
+  };
 
-        const handleChatSelection = (chatId) => {
-          console.log('Selected chat ID:', chatId);
-          fetchChatDetails(chatId);
-        };
-  
-  
+  const handleChatSelection = (chatId) => {
+    console.log('Selected chat ID:', chatId);
+    setSelectedChat(chatId);
+    fetchChatDetails(chatId);
+  };
 
   const fetchChatDetails = async (chatId) => {
     try {
-      const response = await fetch(`${BASE_URL}/chat/${chatId}?limit=8&offset=0`, {
+      const response = await fetch(`${BASE_URL}/chat/${chatId}?limit=20&offset=0`, {
         headers: {
           'X-authorization': token,
         },
@@ -80,7 +239,7 @@ export default function Chat() {
       if (response.ok) {
         const data = await response.json();
         setChatDetails(data);
-        setIsModalVisible(true); // Show modal
+        setIsModalVisible(true);
       } else {
         console.error('Failed to fetch chat details:', response.status);
       }
@@ -91,18 +250,17 @@ export default function Chat() {
 
   const closeModal = () => {
     setIsModalVisible(false);
-    setChatDetails(null); // Clear chat details
+    setChatDetails(null);
   };
 
-  const handleSubmit = async () =>{};
-  
+  const handleSubmit = async () => {};
 
   const createNewChat = async () => {
     if (!chatName) {
       Alert.alert('Error', 'Please enter a chat name');
       return;
     }
-  
+
     try {
       const response = await fetch(`${BASE_URL}/chat`, {
         method: 'POST',
@@ -114,8 +272,8 @@ export default function Chat() {
       });
       if (response.ok) {
         const data = await response.json();
-        const { chat_id } = data; // Extract chat_id from response
-        setSelectedChat({ id: chat_id, token }); // Set selected chat ID and token
+        const { chat_id } = data;
+        setSelectedChat({ id: chat_id, token });
         Alert.alert('Success', 'New chat created successfully');
         setIsModalVisible(false);
         fetchChats();
@@ -127,64 +285,172 @@ export default function Chat() {
       Alert.alert('Error', 'Failed to create new chat');
     }
   };
-  
+
+  const handleNewChatPress = () => {
+    setShowNewChatModal(true);
+  };
+
+  const closeNewChatModal = () => {
+    setShowNewChatModal(false);
+  };
+
+  const handleSecondModalPress = () => {
+    setShowSecondModal(true);
+  };
+
+  const closeSecondModal = () => {
+    setShowSecondModal(false);
+  };
+
+  const handleAddContact = () => {
+    setAddContactsModalList(true);
+    fetchContacts();
+    setShowContactsModal(true);
+  };
+
+  const handleRemoveContact = () => {
+    setRemoveContactsModalList(true);
+    fetchContacts();
+    setShowContactsModal(true);
+  };
+
+  const handleCloseContactListToAdd = () => {
+    setAddContactsModalList(false);
+    setRemoveContactsModalList(false);
+    setShowContactsModal(false);
+  };
 
   return (
     <View>
-      {chats.map((chat) => (
-        <View key={chat.id}>
-          <Text>{chat.name}</Text>
-          <Button
-              title="View Details"
-              onPress={() => handleChatSelection(chat.chat_id)}
+      <Button title="New Chat" onPress={handleNewChatPress} />
+      <ScrollView style={{ maxHeight: 400 }} contentContainerStyle={{ flexGrow: 1 }}>
+        {chats.map((chat) => (
+          <View key={chat.id}>
+            <Text>{chat.name}</Text>
+            <Button title="View Details" onPress={() => handleChatSelection(chat.chat_id)} />
+          </View>
+        ))}
+      </ScrollView>
+      <Modal visible={isModalVisible} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text>Chat Details</Text>
+            <Ionicons 
+                  name="remove-circle" 
+                  size={24} 
+                  color="blue" 
+                  style={{ alignSelf: 'flex-end' }} 
+                  onPress={handleRemoveContact} // Add onPress event handler
             />
-        </View>
-      ))}
-     <Modal visible={isModalVisible} animationType="slide">
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <Text>Chat Details</Text>
-      {/* Add text input */}
-      <TextInput
-        style={styles.input}
-        placeholder="Enter your message"
-        onChangeText={(text) => setMessage(text)}
-      />
-      {/* Add submit button */}
-      <Button title="Submit" onPress={handleSubmit} />
-      {/* Display chat details */}
-      {chatDetails && (
-        <View>
-          <Text>Chat ID: {chatDetails.id}</Text>
-          <Text>Chat Name: {chatDetails.name}</Text>
-          <Text>Creator: {chatDetails.creator.first_name} {chatDetails.creator.last_name}</Text>
-          <Text>Members:</Text>
-          <FlatList
-            data={chatDetails.members}
-            keyExtractor={(item) => item.user_id.toString()}
-            renderItem={({ item }) => (
-              <Text>{item.first_name} {item.last_name}</Text>
-            )}
-          />
-          <Text>Messages:</Text>
-          <FlatList
-            data={chatDetails.messages}
-            keyExtractor={(item) => item.message_id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.messageContainer}>
-                <Text>Message ID: {item.message_id}</Text>
-                <Text>Timestamp: {item.timestamp}</Text>
-                <Text>Message: {item.message}</Text>
-                <Text>Author: {item.author.first_name} {item.author.last_name}</Text>
+            <Ionicons 
+                  name="add-circle" 
+                  size={24} 
+                  color="blue" 
+                  style={{ alignSelf: 'flex-end' }} 
+                  onPress={handleAddContact} // Add onPress event handler
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your message"
+              onChangeText={(text) => setMessage(text)}
+            />
+            <Button title="Submit" onPress={handleSubmit} />
+            {chatDetails && (
+              <View>
+                <Text>Chat ID: {chatDetails.id}</Text>
+                <Text>Chat Name: {chatDetails.name}</Text>
+                <Text>
+                  Creator: {chatDetails.creator.first_name} {chatDetails.creator.last_name}
+                </Text>
+                <Text>Members:</Text>
+                <FlatList
+                  data={chatDetails.members}
+                  keyExtractor={(item) => item.user_id.toString()}
+                  renderItem={({ item }) => (
+                    <Text>
+                      {item.first_name} {item.last_name}
+                    </Text>
+                  )}
+                />
+                <Text>Messages:</Text>
+                <FlatList
+                  data={chatDetails.messages}
+                  keyExtractor={(item) => item.message_id.toString()}
+                  renderItem={({ item }) => (
+                    <View style={styles.messageContainer}>
+                      <Text>Message ID: {item.message_id}</Text>
+                      <Text>Timestamp: {item.timestamp}</Text>
+                      <Text>Message: {item.message}</Text>
+                      <Text>
+                        Author: {item.author.first_name} {item.author.last_name}
+                      </Text>
+                    </View>
+                  )}
+                />
               </View>
             )}
-          />
+            <Button title="Close" onPress={closeModal} />
+            {/* Button to open the second modal */}
+          </View>
         </View>
-      )}
-      <Button title="Close" onPress={closeModal} />
-    </View>
-  </View>
-</Modal>
+      </Modal>
+      <Modal visible={showNewChatModal} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            {/* View containing icon and TextInput */}
+            <View style={{ marginBottom: 10 }}>
+              {/* TextInput */}
+              <TextInput
+                style={styles.input}
+                placeholder="Enter chat name"
+                onChangeText={(text) => setChatName(text)}
+              />
+            </View>
+            <Text>Button Success!</Text>
+            <Button title="Create Chat" onPress={createChat} />
+            <Button title="Close" onPress={closeNewChatModal} />
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showContactsModal} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text>Contact List</Text>
+            <ScrollView>
+              {contacts.map((contact, index) => (
+                <View key={index}>
+                  <TouchableOpacity 
+                        onPress={() => {
+                            if (addContactsModalList) {
+                                addUserToChat(selectedChat, contact.user_id);
+                            } else if (removeContactsModalList) {
+                                removeUserFromChat(selectedChat, contact.user_id);
+                            }
+                        }}
+                    >
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      {/* Render profile picture if available */}
+                      {contact.photo ? (
+                        <Image source={{ uri: `data:image/jpeg;base64,${contact.photo}` }} style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} />
+                      ) : (
+                        <Image source={require('../assets/icon.png')} style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} />
+                      )}
+                      {/* Render contact name */}
+                      <Text>{contact.first_name} {contact.last_name}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
+            <Button title="Close" onPress={handleCloseContactListToAdd} />
+          </View>
+        </View>
+      </Modal>
+
+
+      
+
     </View>
   );
 }
@@ -203,8 +469,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: '80%', // Adjust width as needed
-    height: '80%', // Adjust max height as needed
+    width: '80%',
+    height: '80%',
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 10,
