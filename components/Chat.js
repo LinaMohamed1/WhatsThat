@@ -9,6 +9,7 @@ const BASE_URL = 'http://localhost:3333/api/1.0.0';
 
 export default function Chat() {
   const [token, setToken] = useState('');
+  const [userId, setUserId] = useState('');
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -29,6 +30,8 @@ export default function Chat() {
     const getTokenAndFetchChats = async () => {
       try {
         const storedToken = await AsyncStorage.getItem('token');
+        const storedUserId = await AsyncStorage.getItem('userId');
+        setUserId(storedUserId);
         setToken(storedToken);
         console.log('Token stored:', storedToken);
       } catch (error) {
@@ -238,6 +241,7 @@ export default function Chat() {
       });
       if (response.ok) {
         const data = await response.json();
+        console.log('chat data',data);
         setChatDetails(data);
         setIsModalVisible(true);
       } else {
@@ -248,12 +252,37 @@ export default function Chat() {
     }
   };
 
+  const submitChat = async (chatId, message) => {
+    try {
+        console.log('Message being sent:', message); // Log the message before sending the request
+
+        const token = await AsyncStorage.getItem('token');
+        const response = await fetch(`http://localhost:3333/api/1.0.0/chat/${chatId}/message`, {
+            method: 'POST',
+            headers: {
+                'X-Authorization': token,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: message // Send the message in the request body
+            }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            //console.log('Chat ID:', data.chat_id);
+        } else {
+            console.error('Failed to message chat:', response.status);
+        }
+    } catch (error) {
+        console.error('Error messaging chat:', error);
+    }
+};
+
   const closeModal = () => {
     setIsModalVisible(false);
     setChatDetails(null);
   };
-
-  const handleSubmit = async () => {};
 
   const createNewChat = async () => {
     if (!chatName) {
@@ -320,6 +349,19 @@ export default function Chat() {
     setShowContactsModal(false);
   };
 
+  const handleSubmitMessage = () => {
+    submitChat(selectedChat, messages);
+    fetchChatDetails(selectedChat);
+
+  };
+
+  const handleEditMessage = (messageId, message) => {
+    console.log('Message selected:', message);
+    // You can implement your logic to modify the message here
+  };
+  
+
+
   return (
     <View>
       <Button title="New Chat" onPress={handleNewChatPress} />
@@ -352,12 +394,12 @@ export default function Chat() {
             <TextInput
               style={styles.input}
               placeholder="Enter your message"
-              onChangeText={(text) => setMessage(text)}
+              onChangeText={(text) => setMessages(text)}
             />
-            <Button title="Submit" onPress={handleSubmit} />
+            <Button title="Submit" onPress={() => handleSubmitMessage(selectedChat,messages)} />
             {chatDetails && (
               <View>
-                <Text>Chat ID: {chatDetails.id}</Text>
+              
                 <Text>Chat Name: {chatDetails.name}</Text>
                 <Text>
                   Creator: {chatDetails.creator.first_name} {chatDetails.creator.last_name}
@@ -378,9 +420,13 @@ export default function Chat() {
                   keyExtractor={(item) => item.message_id.toString()}
                   renderItem={({ item }) => (
                     <View style={styles.messageContainer}>
-                      <Text>Message ID: {item.message_id}</Text>
-                      <Text>Timestamp: {item.timestamp}</Text>
-                      <Text>Message: {item.message}</Text>
+                      {item.author.user_id === userId ? ( // Check if the author's user_id matches the logged-in user's userId
+                        <TouchableOpacity onPress={() => handleEditMessage(item.message_id, item.message)}>
+                          <Text style={styles.clickableMessage}>{item.message}</Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <Text>{item.message}</Text>
+                      )}
                       <Text>
                         Author: {item.author.first_name} {item.author.last_name}
                       </Text>
@@ -482,5 +528,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
+  },
+  clickableMessage: {
+    textDecorationLine: 'underline', // Add underline to indicate that it's clickable
+    color: 'blue', // Change text color to blue for better indication
   },
 });
