@@ -419,18 +419,14 @@ export default function Chat() {
                   data={chatDetails.messages}
                   keyExtractor={(item) => item.message_id.toString()}
                   renderItem={({ item }) => (
-                    <View style={styles.messageContainer}>
-                      {item.author.user_id === userId ? ( // Check if the author's user_id matches the logged-in user's userId
-                        <TouchableOpacity onPress={() => handleEditMessage(item.message_id, item.message)}>
-                          <Text style={styles.clickableMessage}>{item.message}</Text>
-                        </TouchableOpacity>
-                      ) : (
-                        <Text>{item.message}</Text>
-                      )}
-                      <Text>
-                        Author: {item.author.first_name} {item.author.last_name}
-                      </Text>
-                    </View>
+                    <TouchableOpacity onPress={() => handleEditMessage(item.message_id, item.message)}>
+                      <View style={styles.messageContainer}>
+                        <Text style={styles.clickableMessage}>{item.message}</Text>
+                        <Text>
+                          Author: {item.author.first_name} {item.author.last_name}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
                   )}
                 />
               </View>
