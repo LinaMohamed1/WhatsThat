@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
+import { styles } from './styles';
 
 export default function Login({ onLogin, navigation }) {
   const [email, setEmail] = useState('');
@@ -62,7 +63,7 @@ export default function Login({ onLogin, navigation }) {
     </View>
   );
 }
-
+/*
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -78,3 +79,4 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
+*/

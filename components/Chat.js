@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ChatDetails from './ChatDetails';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { styles } from './styles';
 
 const BASE_URL = 'http://localhost:3333/api/1.0.0';
 
@@ -12,6 +13,7 @@ export default function Chat() {
   const [userId, setUserId] = useState('');
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
+  const [selectedMessageId, setSelectedMessageId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [chatName, setChatName] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -23,7 +25,10 @@ export default function Chat() {
   const [loading, setLoading] = useState(true);
   const [addContactsModalList, setAddContactsModalList] = useState(false);
   const [removeContactsModalList, setRemoveContactsModalList] = useState(false);
-  
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editedMessage, setEditedMessage] = useState('');
+  const [originalMessage, setOriginalMessage] = useState('');
+
 
 
   useEffect(() => {
@@ -279,10 +284,72 @@ export default function Chat() {
     }
 };
 
+const editChat = async (chatId, messageId) => {
+  try {
+      console.log('Message edited to:', editedMessage); // Log the message before sending the request
+
+      const token = await AsyncStorage.getItem('token');
+      const response = await fetch(`http://localhost:3333/api/1.0.0/chat/${chatId}/message/${messageId}`, {
+          method: 'PATCH',
+          headers: {
+              'X-Authorization': token,
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              message: editedMessage // Send the message in the request body
+          }),
+      });
+
+      if (response.ok) {
+          const data = await response.json();
+          //console.log('Chat ID:', data.chat_id);
+      } else {
+          console.error('Failed to edit chat:', response.status);
+      }
+  } catch (error) {
+      console.error('Error editing chat:', error);
+  }
+};
+
+const deleteChat = async (chatId, messageId) => {
+  try {
+
+      const token = await AsyncStorage.getItem('token');
+      const response = await fetch(`http://localhost:3333/api/1.0.0/chat/${chatId}/message/${messageId}`, {
+          method: 'DELETE',
+          headers: {
+              'X-Authorization': token,
+              'Content-Type': 'application/json',
+          },
+      });
+
+      if (response.ok) {
+          const data = await response.json();
+          console.log('Chat deleted');
+      } else {
+          console.error('Failed to delete chat:', response.status);
+      }
+  } catch (error) {
+      console.error('Error deleting chat:', error);
+  }
+};
+
   const closeModal = () => {
     setIsModalVisible(false);
     setChatDetails(null);
   };
+
+  const openEditModal = (item) => {
+    setOriginalMessage(item.message);
+    setEditedMessage(item.message);
+    setEditModalVisible(true);
+    setSelectedMessageId(item.message_id);
+  };
+
+  const closeEditModal = () => {
+    setEditModalVisible(false);
+  };
+
 
   const createNewChat = async () => {
     if (!chatName) {
@@ -355,9 +422,16 @@ export default function Chat() {
 
   };
 
-  const handleEditMessage = (messageId, message) => {
-    console.log('Message selected:', message);
-    // You can implement your logic to modify the message here
+  const handleEdit = () => {
+    editChat(selectedChat, selectedMessageId); // Call editChat with the selectedChat and selectedMessageId
+    fetchChatDetails(selectedChat);
+    closeEditModal();
+  };
+  
+  const handleDelete = () => {
+    deleteChat(selectedChat, selectedMessageId); // Call deleteChat with the selectedChat and selectedMessageId
+    closeEditModal(); // Close the modal after deleting
+    fetchChatDetails(selectedChat); // Fetch updated chat details after deleting
   };
   
 
@@ -419,7 +493,7 @@ export default function Chat() {
                   data={chatDetails.messages}
                   keyExtractor={(item) => item.message_id.toString()}
                   renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => handleEditMessage(item.message_id, item.message)}>
+                    <TouchableOpacity onPress={() => openEditModal(item)}>
                       <View style={styles.messageContainer}>
                         <Text style={styles.clickableMessage}>{item.message}</Text>
                         <Text>
@@ -491,12 +565,31 @@ export default function Chat() {
       </Modal>
 
 
+      <Modal visible={editModalVisible} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text>Edit Message</Text>
+            <TextInput
+              style={styles.input}
+              multiline
+              value={editedMessage}
+              onChangeText={setEditedMessage}
+            />
+            <Button title="Edit" onPress={handleEdit} /> {/* Remove parentheses after handleEdit */}
+            <Button title="Delete" onPress={handleDelete} /> {/* Remove unnecessary parameters */}
+            <Button title="Close" onPress={closeEditModal} />
+          </View>
+        </View>
+      </Modal>
+
+
+
       
 
     </View>
   );
 }
-
+/*
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -530,3 +623,4 @@ const styles = StyleSheet.create({
     color: 'blue', // Change text color to blue for better indication
   },
 });
+*/

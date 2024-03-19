@@ -3,8 +3,7 @@ import { Text, View, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { styles, contactBoxWidth } from './styles'; // Import contactBoxWidth from styles
 import { Ionicons } from '@expo/vector-icons';
-
-// Import your generic icon image
+//import { styles } from './styles';
 import noProfileImage from '../assets/profpic.jpeg';
 
 export default function Chat() {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
+import { styles } from './styles';
 
 export default function Register({ navigation }) {
   const [firstName, setFirstName] = useState('');
@@ -70,7 +71,7 @@ export default function Register({ navigation }) {
     </View>
   );
 }
-
+/*
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -86,3 +87,4 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
+*/

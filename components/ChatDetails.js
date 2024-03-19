@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { styles } from './styles';
 
 const BASE_URL = 'http://localhost:3333/api/1.0.0';
 
@@ -54,7 +55,7 @@ export default function ChatDetails({ chatId, token }) {
     </View>
   );
 }
-
+/*
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -68,3 +69,4 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 });
+*/

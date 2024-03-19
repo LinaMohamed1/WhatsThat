@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, Button, FlatList, Switch, TouchableOpacity, Modal, TouchableHighlight } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import { styles } from './styles';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -285,7 +286,7 @@ export default function Home() {
     </View>
   );
 }
-
+/*
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -360,3 +361,4 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
 });
+*/
