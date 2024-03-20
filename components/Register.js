@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
-import { styles } from './styles';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import  styles  from './styles';
 
 export default function Register({ navigation }) {
   const [firstName, setFirstName] = useState('');
@@ -34,57 +34,39 @@ export default function Register({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container1}>
       <Text>Register Screen</Text>
       <TextInput
         placeholder="Enter your first name"
-        style={styles.input}
+        style={styles.input3}
         value={firstName}
         onChangeText={setFirstName}
       />
       <TextInput
         placeholder="Enter your last name"
-        style={styles.input}
+        style={styles.input3}
         value={lastName}
         onChangeText={setLastName}
       />
       <TextInput
         placeholder="Enter your email"
-        style={styles.input}
+        style={styles.input3}
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
         placeholder="Enter your password"
-        style={styles.input}
+        style={styles.input3}
         secureTextEntry={true}
         value={password}
         onChangeText={setPassword}
       />
-      <Button title="Register" onPress={handleRegister} />
-      <Button
-        title="Back to Login"
-        onPress={() => {
-          navigation.goBack();
-        }}
-      />
+  <TouchableOpacity style={[styles.button, { width: 100 }]} onPress={handleRegister}>
+    <Text style={styles.buttonText}>Register</Text>
+  </TouchableOpacity>
+    <TouchableOpacity style={[styles.button, { width: 150 }]} onPress={() => { navigation.goBack(); }}>
+  <Text style={styles.buttonText}>Go Back To Login</Text>
+  </TouchableOpacity>
     </View>
   );
 }
-/*
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  input: {
-    width: '80%',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    marginBottom: 10,
-  },
-});
-*/

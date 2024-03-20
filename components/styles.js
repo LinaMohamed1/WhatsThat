@@ -1,10 +1,10 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-  // First set of styles
+  // First set of styles for CHAT COMPONENT
   container1: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#AFE1AF', // Main theme color
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: '#AFE1AF', // White with transparency
   },
   modalContent: {
     width: '80%',
@@ -22,22 +22,23 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 5,
   },
-  input: {
+  input1: { // Renamed to input1
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 10, // Rounded border
     padding: 10,
     marginBottom: 10,
+    backgroundColor: '#EAFAF1',
   },
   clickableMessage: {
     textDecorationLine: 'underline',
-    color: 'blue',
+    //color: 'blue',
   },
 
   // Second set of styles
   container2: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#AFE1AF', // Main theme color
     padding: 10,
   },
   messageContainer: {
@@ -47,10 +48,10 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 
-  // Third set of styles
+  // Third set of styles CONTACTS
   container3: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#AFE1AF', // Main theme color
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -58,13 +59,16 @@ const styles = StyleSheet.create({
   searchInput: {
     borderWidth: 1,
     borderColor: '#ccc',
+    borderRadius: 10, // Rounded border
     padding: 10,
     marginBottom: 10,
     width: '80%',
+    backgroundColor: '#EAFAF1',
   },
   contactItem: {
     borderBottomWidth: 1,
     borderColor: '#eee',
+    borderRadius: 10, // Rounded border
     padding: 10,
     marginVertical: 5,
   },
@@ -74,9 +78,25 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   buttonContainer: {
+    backgroundColor: '#AFE1AF',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    borderRadius: 10,
+    paddingVertical: 10, // Increase the vertical padding
+    paddingHorizontal: 10, // Increase the horizontal padding
     marginBottom: 10,
+  },  
+  button: {
+    //backgroundColor: '#EAFAF1',
+    backgroundColor: '#27AE60',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    marginHorizontal: 40, // Add margin on both sides of the button
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: 'white',
   },
   centeredView: {
     flex: 1,
@@ -86,7 +106,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: "white",
+    backgroundColor: "#AFE1AF",
     borderRadius: 20,
     padding: 35,
     alignItems: "center",
@@ -101,12 +121,12 @@ const styles = StyleSheet.create({
   },
   openButton: {
     backgroundColor: "#F194FF",
-    borderRadius: 20,
+    borderRadius: 10, // Rounded border
     padding: 10,
     elevation: 2,
   },
   textStyle: {
-    color: "white",
+    color: "#fff", // White text color
     fontWeight: "bold",
     textAlign: "center",
   },
@@ -117,39 +137,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   unblockButton: {
-    color: 'blue',
+    color: 'red',
     textDecorationLine: 'underline',
   },
 
   // Fourth set of styles
   container4: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#AFE1AF', // Main theme color
     alignItems: 'center',
     justifyContent: 'center',
   },
-  input: {
+  input2: { // Renamed to input2
     width: '80%',
     borderWidth: 1,
     borderColor: '#ccc',
+    borderRadius: 10, // Rounded border
     padding: 10,
     marginBottom: 10,
+    backgroundColor: '#EAFAF1',
   },
 
-  // Fifth set of styles
+  // LOGIN AND REGISTER
   container5: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#AFE1AF', // Main theme color
     alignItems: 'center',
     justifyContent: 'center',
   },
-  input: {
+  input3: { // Renamed to input3
     width: '80%',
     borderWidth: 1,
     borderColor: '#ccc',
+    borderRadius: 10, // Rounded border
     padding: 10,
     marginBottom: 10,
+    backgroundColor: '#EAFAF1',
   },
+  whiteText: {
+    color: 'white',
+  },
+  
 });
 
 export default styles;

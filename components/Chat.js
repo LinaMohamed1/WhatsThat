@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TextInput, FlatList, Alert, Modal, ScrollView, Image, TouchableOpacity } from 'react-native'; // Import ScrollView
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ChatDetails from './ChatDetails';
+//import ChatDetails from './ChatDetails';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { styles } from './styles';
+import  styles  from './styles';
 
 const BASE_URL = 'http://localhost:3333/api/1.0.0';
 
@@ -436,14 +436,20 @@ const deleteChat = async (chatId, messageId) => {
   
 
 
-  return (
-    <View>
-      <Button title="New Chat" onPress={handleNewChatPress} />
-      <ScrollView style={{ maxHeight: 400 }} contentContainerStyle={{ flexGrow: 1 }}>
+  return ( 
+  <View style = {styles.container2} >
+    <View style = {styles.buttonContainer}>
+      <TouchableOpacity style={styles.button} onPress={handleNewChatPress}>
+         <Text style={styles.whiteText}>New Chat</Text>
+      </TouchableOpacity>
+      </View>
+      <ScrollView style={{ maxHeight: 1000 }} contentContainerStyle={{ flexGrow: 1 }}>
         {chats.map((chat) => (
           <View key={chat.id}>
             <Text>{chat.name}</Text>
-            <Button title="View Details" onPress={() => handleChatSelection(chat.chat_id)} />
+            <TouchableOpacity style={styles.button} onPress={() => handleChatSelection(chat.chat_id)}>
+             <Text style={styles.whiteText}>View Details</Text>
+            </TouchableOpacity>
           </View>
         ))}
       </ScrollView>
@@ -466,11 +472,13 @@ const deleteChat = async (chatId, messageId) => {
                   onPress={handleAddContact} // Add onPress event handler
             />
             <TextInput
-              style={styles.input}
+              style={styles.input1}
               placeholder="Enter your message"
               onChangeText={(text) => setMessages(text)}
             />
-            <Button title="Submit" onPress={() => handleSubmitMessage(selectedChat,messages)} />
+            <TouchableOpacity style={styles.button} onPress={() => handleSubmitMessage(selectedChat,messages)}>
+             <Text style={styles.whiteText}>Submit</Text>
+            </TouchableOpacity>
             {chatDetails && (
               <View>
               
@@ -497,7 +505,7 @@ const deleteChat = async (chatId, messageId) => {
                       <View style={styles.messageContainer}>
                         <Text style={styles.clickableMessage}>{item.message}</Text>
                         <Text>
-                          Author: {item.author.first_name} {item.author.last_name}
+                          {item.author.first_name} {item.author.last_name}
                         </Text>
                       </View>
                     </TouchableOpacity>
@@ -505,7 +513,9 @@ const deleteChat = async (chatId, messageId) => {
                 />
               </View>
             )}
-            <Button title="Close" onPress={closeModal} />
+            <TouchableOpacity style={styles.button} onPress={closeModal}>
+              <Text style={styles.whiteText}>Close</Text>
+            </TouchableOpacity>
             {/* Button to open the second modal */}
           </View>
         </View>
@@ -517,14 +527,18 @@ const deleteChat = async (chatId, messageId) => {
             <View style={{ marginBottom: 10 }}>
               {/* TextInput */}
               <TextInput
-                style={styles.input}
+                style={styles.input1}
                 placeholder="Enter chat name"
                 onChangeText={(text) => setChatName(text)}
               />
             </View>
             <Text>Button Success!</Text>
-            <Button title="Create Chat" onPress={createChat} />
-            <Button title="Close" onPress={closeNewChatModal} />
+            <TouchableOpacity style={styles.button} onPress={createChat}>
+              <Text style={styles.whiteText}>Create Chat</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={closeNewChatModal}>
+             <Text style={styles.whiteText}>Closr</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -532,6 +546,7 @@ const deleteChat = async (chatId, messageId) => {
       <Modal visible={showContactsModal} animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
+            <View style={styles.buttonContainer}>
             <Text>Contact List</Text>
             <ScrollView>
               {contacts.map((contact, index) => (
@@ -559,7 +574,10 @@ const deleteChat = async (chatId, messageId) => {
                 </View>
               ))}
             </ScrollView>
-            <Button title="Close" onPress={handleCloseContactListToAdd} />
+            <TouchableOpacity style={styles.button} onPress={handleCloseContactListToAdd}>
+             <Text style={styles.whiteText}>Close</Text>
+            </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -568,16 +586,24 @@ const deleteChat = async (chatId, messageId) => {
       <Modal visible={editModalVisible} animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text>Edit Message</Text>
+            <View style={styles.buttonContainer}>
+            <Text style={styles.buttonText}>Edit Message</Text>
             <TextInput
-              style={styles.input}
+              style={styles.input1}
               multiline
               value={editedMessage}
               onChangeText={setEditedMessage}
             />
-            <Button title="Edit" onPress={handleEdit} /> {/* Remove parentheses after handleEdit */}
-            <Button title="Delete" onPress={handleDelete} /> {/* Remove unnecessary parameters */}
-            <Button title="Close" onPress={closeEditModal} />
+            <TouchableOpacity style={styles.button} onPress={handleEdit}>
+               <Text style={styles.buttonText}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={handleDelete}>
+                <Text style={styles.buttonText}>Delete</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={closeEditModal}>
+                <Text style={styles.buttonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -589,38 +615,3 @@ const deleteChat = async (chatId, messageId) => {
     </View>
   );
 }
-/*
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    width: '80%',
-    height: '80%',
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    elevation: 5,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-  },
-  clickableMessage: {
-    textDecorationLine: 'underline', // Add underline to indicate that it's clickable
-    color: 'blue', // Change text color to blue for better indication
-  },
-});
-*/

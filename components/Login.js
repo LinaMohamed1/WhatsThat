@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
-import { styles } from './styles';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import  styles  from './styles';
 
 export default function Login({ onLogin, navigation }) {
   const [email, setEmail] = useState('');
@@ -43,40 +43,35 @@ export default function Login({ onLogin, navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container5}>
       <Text>Login Screen</Text>
       <TextInput
         placeholder="Enter your email"
-        style={styles.input}
+        style={styles.input3}
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
         placeholder="Enter your password"
         secureTextEntry={true}
-        style={styles.input}
+        style={styles.input3}
         value={password}
         onChangeText={setPassword}
       />
-      <Button title="Login" onPress={handleLogin} />
-      <Button title="Register" onPress={handleRegister} />
+      <View style={styles.buttonContainer}>
+      <TouchableOpacity
+        style={[styles.button, styles.customButton]}
+        onPress={handleLogin}
+      >
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.button, styles.customButton]}
+        onPress={handleRegister}
+      >
+        <Text style={styles.buttonText}>Register</Text>
+      </TouchableOpacity>
+      </View>
     </View>
   );
 }
-/*
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  input: {
-    width: '80%',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    marginBottom: 10,
-  },
-});
-*/

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { styles, contactBoxWidth } from './styles'; // Import contactBoxWidth from styles
-import { Ionicons } from '@expo/vector-icons';
-//import { styles } from './styles';
+import { contactBoxWidth } from './styles'; // Import contactBoxWidth from styles
+import styles from './styles';
 import noProfileImage from '../assets/profpic.jpeg';
 
 export default function Chat() {
@@ -57,7 +56,7 @@ export default function Chat() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container3}>
       {loading ? (
         <Text>Loading...</Text>
       ) : (
@@ -67,11 +66,6 @@ export default function Chat() {
           <View>
             {contacts.map((contact, index) => (
               <View key={index} style={[styles.contactBox, { width: contactBoxWidth }]}>
-                <View style={styles.actionButtons}>
-                  <TouchableOpacity style={styles.button} onPress={() => { /* Handle chat action */ }}>
-                    <Ionicons name="chatbubble" size={24} color="black" />
-                  </TouchableOpacity>
-                </View>
                 <Image
                   source={{ uri: `data:image/jpeg;base64,${contact.photo}` }}
                   style={{ width: 100, height: 100, borderRadius: 50 }}

@@ -9,6 +9,7 @@ import Register from './components/Register';
 import Settings from './components/Settings';
 import Chat from './components/Chat';
 import Contacts from './components/Contacts';
+import styles from './components/styles';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -43,7 +44,10 @@ export default function App() {
           <>
             <Stack.Screen name="Main" options={{ headerShown: false }}>
               {() => (
-                <Tab.Navigator>
+                <Tab.Navigator
+                screenOptions={{
+                  tabBarStyle: { backgroundColor: '#EAFAF1' }, // Background color for the tab navigator
+                }}>
                   <Tab.Screen name="Home">
                     {(props) => <Home {...props} isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />}
                   </Tab.Screen>

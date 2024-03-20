@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, Button, FlatList, Switch, TouchableOpacity, Modal, TouchableHighlight } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { styles } from './styles';
+import  styles  from './styles';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -201,7 +201,7 @@ export default function Home() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container1}>
       <Text>Welcome to the Home Screen!</Text>
       <TextInput
         style={styles.searchInput}
@@ -220,8 +220,12 @@ export default function Home() {
         />
       </View>
       <View style={styles.buttonContainer}>
-        <Button title="Search" onPress={() => fetchData(searchInContacts ? 'contacts' : 'all', setSearchResults)} />
-        <Button title="View Blocked Contacts" onPress={viewBlockedUsers} />
+        <TouchableOpacity style={styles.button} onPress={() => fetchData(searchInContacts ? 'contacts' : 'all', setSearchResults)}>
+          <Text style={styles.buttonText}>Search</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={viewBlockedUsers}>
+          <Text style={styles.buttonText}>View Blocked Contacts</Text>
+        </TouchableOpacity>
       </View>
 
       {isLoading && <Text>Loading...</Text>}
@@ -286,79 +290,3 @@ export default function Home() {
     </View>
   );
 }
-/*
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  searchInput: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    marginBottom: 10,
-    width: '80%'
-  },
-  contactItem: {
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-    padding: 10,
-    marginVertical: 5,
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
-  },
-  openButton: {
-    backgroundColor: "#F194FF",
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center"
-  },
-  blockedUserItem: {
-    marginVertical: 5,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  unblockButton: {
-    color: 'blue',
-    textDecorationLine: 'underline',
-  },
-});
-*/

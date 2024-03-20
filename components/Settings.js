@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-nat
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-import { styles } from './styles';
+import  styles  from './styles';
 //import { darkStyles } from './darkStyles';
 
 export default function Settings() {
@@ -192,7 +192,7 @@ export default function Settings() {
   };
 
   return (
-    <View style={[styles.container, isDarkMode && styles.darkModeContainer]}>
+    <View style={[styles.container5, isDarkMode && styles.darkModeContainer]}>
       <View style={styles.userInfoContainer}>
       {profileImage ? (
   <Image source={{ uri: profileImage }} style={styles.profileImage} />
@@ -206,23 +206,23 @@ export default function Settings() {
         )}
       </View>
       <TextInput
-        style={styles.input}
+        style={styles.input1}
         onChangeText={setFirstName}
         placeholder="First Name"
       />
       <TextInput
-        style={styles.input}
+        style={styles.input1}
         onChangeText={setLastName}
         placeholder="Last Name"
       />
       <TextInput
-        style={styles.input}
+        style={styles.input1}
         onChangeText={setEmail}
         placeholder="Email"
         keyboardType="email-address"
       />
       <TextInput
-        style={styles.input}
+        style={styles.input1}
         onChangeText={setPassword}
         placeholder="Password"
         secureTextEntry={true}
