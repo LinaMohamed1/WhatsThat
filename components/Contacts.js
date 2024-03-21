@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Image, TouchableOpacity } from 'react-native';
+import { Text, View, Image, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { contactBoxWidth } from './styles'; // Import contactBoxWidth from styles
 import styles from './styles';
@@ -63,21 +63,22 @@ export default function Chat() {
         <View>
           <Text>Welcome to the Contacts Screen!</Text>
           <Text>Contacts:</Text>
-          <View>
-            {contacts.map((contact, index) => (
-              <View key={index} style={[styles.contactBox, { width: contactBoxWidth }]}>
-                <Image
-                  source={{ uri: `data:image/jpeg;base64,${contact.photo}` }}
-                  style={{ width: 100, height: 100, borderRadius: 50 }}
-                />
-                <Text>{contact.first_name} {contact.last_name}</Text>
-                <Text>Email: {contact.email}</Text>
-                <Text>User ID: {contact.user_id}</Text>
-              </View>
-            ))}
-          </View>
+          <ScrollView style={{ maxHeight: 500 }}> {/* Adjust maxHeight to your needs */}
+            <View>
+              {contacts.map((contact, index) => (
+                <View key={index} style={[styles.contactBox, { width: contactBoxWidth }]}>
+                  <Image
+                    source={{ uri: `data:image/jpeg;base64,${contact.photo}` }}
+                    style={{ width: 100, height: 100, borderRadius: 50 }}
+                  />
+                  <Text>{contact.first_name} {contact.last_name}</Text>
+                  <Text>Email: {contact.email}</Text>
+                </View>
+              ))}
+            </View>
+          </ScrollView>
         </View>
       )}
     </View>
-  );
+  );  
 }

@@ -32,19 +32,13 @@ const styles = StyleSheet.create({
   },
   clickableMessage: {
     textDecorationLine: 'underline',
-    //color: 'blue',
+    //color: '',
   },
 
   // Second set of styles
   container2: {
     flex: 1,
     backgroundColor: '#AFE1AF', // Main theme color
-    padding: 10,
-  },
-  messageContainer: {
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
     padding: 10,
   },
 
@@ -176,6 +170,34 @@ const styles = StyleSheet.create({
   },
   whiteText: {
     color: 'white',
+  },
+
+  otherUserMessageText: {
+   // color: 'white',
+  },
+  currentUserMessageText:{},
+  currentUserMessage: {
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    backgroundColor: '#3498DB',
+    alignSelf: 'flex-start', // Align to the left for current user's messages
+  },
+  otherUserMessage: {
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    backgroundColor: '#D1F2EB', // Background color for messages from other users
+    alignSelf: 'flex-end', // Align to the right for other users' messages
+  },
+  messageContainer: {
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    backgroundColor:'#3498DB',
   },
   
 });

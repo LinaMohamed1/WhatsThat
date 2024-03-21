@@ -27,7 +27,7 @@ export default function Login({ onLogin, navigation }) {
         console.log('ID:', data.id);
         console.log('Token:', data.token); // Logging the token
         await AsyncStorage.setItem('token', data.token);
-        await AsyncStorage.setItem('userId', data.id.toString());
+        await AsyncStorage.setItem('userId', data.id);
         onLogin();
       } else {
         console.error('Login failed');

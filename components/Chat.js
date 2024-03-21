@@ -31,6 +31,7 @@ export default function Chat() {
 
 
 
+
   useEffect(() => {
     const getTokenAndFetchChats = async () => {
       try {
@@ -344,6 +345,7 @@ const deleteChat = async (chatId, messageId) => {
     setEditedMessage(item.message);
     setEditModalVisible(true);
     setSelectedMessageId(item.message_id);
+    console.log("Author's User ID:", item.author.user_id);
   };
 
   const closeEditModal = () => {
@@ -455,68 +457,81 @@ const deleteChat = async (chatId, messageId) => {
       </ScrollView>
       <Modal visible={isModalVisible} animationType="slide">
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text>Chat Details</Text>
-            <Ionicons 
-                  name="remove-circle" 
-                  size={24} 
-                  color="blue" 
-                  style={{ alignSelf: 'flex-end' }} 
-                  onPress={handleRemoveContact} // Add onPress event handler
-            />
-            <Ionicons 
-                  name="add-circle" 
-                  size={24} 
-                  color="blue" 
-                  style={{ alignSelf: 'flex-end' }} 
-                  onPress={handleAddContact} // Add onPress event handler
-            />
+        <View style={styles.modalContent}>
+  {/* Plus and Minus Icons */}
+  <Ionicons 
+    name="remove-circle" 
+    size={24} 
+    color="blue" 
+    style={{ alignSelf: 'flex-end' }} 
+    onPress={handleRemoveContact} // Add onPress event handler
+  />
+  <Ionicons 
+    name="add-circle" 
+    size={24} 
+    color="blue" 
+    style={{ alignSelf: 'flex-end' }} 
+    onPress={handleAddContact} // Add onPress event handler
+  />
+
+  {/* Information (Chat Name, Creator, Members) */}
+  {chatDetails && (
+    <View>
+      <Text>Chat Name: {chatDetails.name}</Text>
+      <Text>Members:</Text>
+      <FlatList
+        data={chatDetails.members}
+        keyExtractor={(item) => item.user_id.toString()}
+        renderItem={({ item }) => (
+          <Text>
+            {item.first_name} {item.last_name}
+          </Text>
+        )}
+      />
+    </View>
+  )}
+
+  {/* Messages */}
+{chatDetails && (
+            <ScrollView>
+              {chatDetails.messages.map((message) => (
+                console.log("Message author user_id:", message.author.user_id),
+                console.log('logged in user:', userId),
+                <TouchableOpacity key={message.message_id} onPress={() => openEditModal(message)}>
+                  <View style={[
+                    styles.messageContainer,
+                    message.author.user_id == userId ? styles.currentUserMessage : styles.otherUserMessage
+                  ]}>
+                    <Text style={[
+                      styles.clickableMessage,
+                      message.author.user_id == userId ? styles.currentUserMessageText : styles.otherUserMessageText
+                    ]}>
+                      {message.message}
+                    </Text>
+                    <Text style={styles.authorName}>
+                      {message.author.first_name} {message.author.last_name}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
+
+
+  {/* Textbox and Submit Button */}
             <TextInput
               style={styles.input1}
               placeholder="Enter your message"
               onChangeText={(text) => setMessages(text)}
             />
-            <TouchableOpacity style={styles.button} onPress={() => handleSubmitMessage(selectedChat,messages)}>
-             <Text style={styles.whiteText}>Submit</Text>
+            <TouchableOpacity style={styles.button} onPress={() => handleSubmitMessage(selectedChat, messages)}>
+              <Text style={styles.whiteText}>Submit</Text>
             </TouchableOpacity>
-            {chatDetails && (
-              <View>
-              
-                <Text>Chat Name: {chatDetails.name}</Text>
-                <Text>
-                  Creator: {chatDetails.creator.first_name} {chatDetails.creator.last_name}
-                </Text>
-                <Text>Members:</Text>
-                <FlatList
-                  data={chatDetails.members}
-                  keyExtractor={(item) => item.user_id.toString()}
-                  renderItem={({ item }) => (
-                    <Text>
-                      {item.first_name} {item.last_name}
-                    </Text>
-                  )}
-                />
-                <Text>Messages:</Text>
-                <FlatList
-                  data={chatDetails.messages}
-                  keyExtractor={(item) => item.message_id.toString()}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => openEditModal(item)}>
-                      <View style={styles.messageContainer}>
-                        <Text style={styles.clickableMessage}>{item.message}</Text>
-                        <Text>
-                          {item.author.first_name} {item.author.last_name}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  )}
-                />
-              </View>
-            )}
+
+            {/* Close Button */}
             <TouchableOpacity style={styles.button} onPress={closeModal}>
               <Text style={styles.whiteText}>Close</Text>
             </TouchableOpacity>
-            {/* Button to open the second modal */}
           </View>
         </View>
       </Modal>
