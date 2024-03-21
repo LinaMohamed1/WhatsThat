@@ -477,7 +477,7 @@ const deleteChat = async (chatId, messageId) => {
   {/* Information (Chat Name, Creator, Members) */}
   {chatDetails && (
     <View>
-      <Text>Chat Name: {chatDetails.name}</Text>
+      <Text>{chatDetails.name}</Text>
       <Text>Members:</Text>
       <FlatList
         data={chatDetails.members}
@@ -495,8 +495,6 @@ const deleteChat = async (chatId, messageId) => {
 {chatDetails && (
             <ScrollView>
               {chatDetails.messages.map((message) => (
-                console.log("Message author user_id:", message.author.user_id),
-                console.log('logged in user:', userId),
                 <TouchableOpacity key={message.message_id} onPress={() => openEditModal(message)}>
                   <View style={[
                     styles.messageContainer,
