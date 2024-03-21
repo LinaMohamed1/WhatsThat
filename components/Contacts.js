@@ -1,59 +1,59 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, Image, ScrollView } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { contactBoxWidth } from './styles'; // Import contactBoxWidth from styles
-import styles from './styles';
-import noProfileImage from '../assets/profpic.jpeg';
+import React, { useState, useEffect } from 'react'
+import { Text, View, Image, ScrollView } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { contactBoxWidth } from './styles' // Import contactBoxWidth from styles
+import styles from './styles'
+import noProfileImage from '../assets/profpic.jpeg'
 
-export default function Chat() {
-  const [contacts, setContacts] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function Chat () {
+  const [contacts, setContacts] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchContacts = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
+        const token = await AsyncStorage.getItem('token')
         const response = await fetch('http://localhost:3333/api/1.0.0/contacts', {
           headers: {
             'X-Authorization': token,
-            'Content-Type': 'application/json',
-          },
-        });
-        const data = await response.json();
+            'Content-Type': 'application/json'
+          }
+        })
+        const data = await response.json()
 
         // Fetch profile pictures for each contact
         const contactsWithImages = await Promise.all(data.map(async (contact) => {
           try {
             const photoResponse = await fetch(`http://localhost:3333/api/1.0.0/user/${contact.user_id}/photo`, {
               headers: {
-                'X-Authorization': token,
-              },
-            });
+                'X-Authorization': token
+              }
+            })
             if (photoResponse.ok) {
-              const photoBlob = await photoResponse.blob();
-              const reader = new FileReader();
+              const photoBlob = await photoResponse.blob()
+              const reader = new FileReader()
               reader.onload = () => {
-                const base64data = reader.result.split(',')[1];
-                setContacts(prevContacts => [...prevContacts, { ...contact, photo: base64data }]);
-              };
-              reader.readAsDataURL(photoBlob);
+                const base64data = reader.result.split(',')[1]
+                setContacts(prevContacts => [...prevContacts, { ...contact, photo: base64data }])
+              }
+              reader.readAsDataURL(photoBlob)
             } else {
               // If profile picture not found, set default image
-              setContacts(prevContacts => [...prevContacts, { ...contact, photo: noProfileImage }]);
+              setContacts(prevContacts => [...prevContacts, { ...contact, photo: noProfileImage }])
             }
           } catch (error) {
-            console.error('Error fetching photo:', error);
+            console.error('Error fetching photo:', error)
           }
-        }));
+        }))
 
-        setLoading(false);
+        setLoading(false)
       } catch (error) {
-        console.error('Error fetching contacts:', error);
+        console.error('Error fetching contacts:', error)
       }
-    };
+    }
 
-    fetchContacts();
-  }, []);
+    fetchContacts()
+  }, [])
 
   return (
     <View style={styles.container3}>
@@ -80,5 +80,5 @@ export default function Chat() {
         </View>
       )}
     </View>
-  );  
+  )
 }

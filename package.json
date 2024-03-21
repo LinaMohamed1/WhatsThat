@@ -22,10 +22,12 @@
     "react-native": "0.73.5",
     "react-native-image-picker": "^7.1.1",
     "react-native-paper": "^5.12.3",
+    "react-native-popup-dialog": "^0.18.3",
     "react-native-web": "~0.19.6"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "standard": "^17.1.0"
   },
   "private": true
 }

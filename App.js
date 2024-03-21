@@ -1,63 +1,64 @@
-import React, { useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
-import { Provider as PaperProvider } from 'react-native-paper';
-import Home from './components/Home';
-import Login from './components/Login';
-import Register from './components/Register';
-import Settings from './components/Settings';
-import Chat from './components/Chat';
-import Contacts from './components/Contacts';
-import styles from './components/styles';
+import React, { useState } from 'react'
+import { NavigationContainer } from '@react-navigation/native'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { createStackNavigator } from '@react-navigation/stack'
+import { Provider as PaperProvider } from 'react-native-paper'
+import Home from './components/Home'
+import Login from './components/Login'
+import Register from './components/Register'
+import Settings from './components/Settings'
+import Chat from './components/Chat'
+import Contacts from './components/Contacts'
+import styles from './components/styles'
 
-const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator()
+const Tab = createBottomTabNavigator()
 
-export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+export default function App () {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(false)
 
   const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
+    setIsLoggedIn(true)
+  }
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
-  };
+    setIsLoggedIn(false)
+  }
 
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-  };
+    setIsDarkMode(!isDarkMode)
+  }
 
   return (
     <NavigationContainer>
       <Stack.Navigator>
         {!isLoggedIn ? (
           <>
-            <Stack.Screen name="Login">
+            <Stack.Screen name='Login'>
               {(props) => <Login {...props} onLogin={handleLogin} />}
             </Stack.Screen>
-            <Stack.Screen name="Register" component={Register} />
+            <Stack.Screen name='Register' component={Register} />
           </>
         ) : (
           <>
-            <Stack.Screen name="Main" options={{ headerShown: false }}>
+            <Stack.Screen name='Main' options={{ headerShown: false }}>
               {() => (
                 <Tab.Navigator
-                screenOptions={{
-                  tabBarStyle: { backgroundColor: '#EAFAF1' }, // Background color for the tab navigator
-                }}>
-                  <Tab.Screen name="Home">
+                  screenOptions={{
+                    tabBarStyle: { backgroundColor: '#EAFAF1' } // Background color for the tab navigator
+                  }}
+                >
+                  <Tab.Screen name='Home'>
                     {(props) => <Home {...props} isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />}
                   </Tab.Screen>
-                  <Tab.Screen name="Chat">
+                  <Tab.Screen name='Chat'>
                     {(props) => <Chat {...props} isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />}
                   </Tab.Screen>
-                  <Tab.Screen name="Contacts">
+                  <Tab.Screen name='Contacts'>
                     {(props) => <Contacts {...props} isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />}
                   </Tab.Screen>
-                  <Tab.Screen name="Settings">
+                  <Tab.Screen name='Settings'>
                     {(props) => <Settings {...props} isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />}
                   </Tab.Screen>
                 </Tab.Navigator>
@@ -67,5 +68,5 @@ export default function App() {
         )}
       </Stack.Navigator>
     </NavigationContainer>
-  );
+  )
 }

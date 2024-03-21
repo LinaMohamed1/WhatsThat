@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as ImagePicker from 'expo-image-picker';
-import  styles  from './styles';
-//import { darkStyles } from './darkStyles';
+import React, { useEffect, useState } from 'react'
+import { View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as ImagePicker from 'expo-image-picker'
+import styles from './styles'
+// import { darkStyles } from './darkStyles';
 
-export default function Settings() {
-  const [userData, setUserData] = useState(null);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
+export default function Settings () {
+  const [userData, setUserData] = useState(null)
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isDarkMode, setIsDarkMode] = useState(false)
+  const [profileImage, setProfileImage] = useState(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,8 +25,8 @@ export default function Settings() {
         const userDataResponse = await fetch(`http://localhost:3333/api/1.0.0/user/${userId}`, {
           headers: {
             'X-Authorization': token,
-            'Content-Type': 'application/json',
-          },
+            'Content-Type': 'application/json'
+          }
         });
   
         if (!userDataResponse.ok) {
@@ -43,18 +43,22 @@ export default function Settings() {
         // Fetch profile picture
         const profilePicResponse = await fetch(`http://localhost:3333/api/1.0.0/user/${userId}/photo`, {
           headers: {
-            'X-Authorization': token,
-          },
+            'X-Authorization': token
+          }
         });
   
         if (profilePicResponse.ok) {
           const blob = await profilePicResponse.blob(); // Get blob response
-          setProfileImage(URL.createObjectURL(blob)); // Convert blob to URL and set as profile image
+          const reader = new FileReader();
+          reader.onload = () => {
+            const base64data = reader.result.split(',')[1]; // Extract base64-encoded data
+            setProfileImage('data:image/jpeg;base64,' + base64data); // Set base64-encoded data as profile image
+          };
+          reader.readAsDataURL(blob); // Read blob as data URL
           console.log('Profile picture fetched successfully');
         } else {
           console.error('Failed to fetch profile picture');
         }
-  
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -62,113 +66,90 @@ export default function Settings() {
   
     fetchData();
   }, []);
-  
+
+  console.log('pic', profileImage);
   
 
-
-  const getProfilePic = async () => {
-    try {
-      const userId = await AsyncStorage.getItem('userId');
-      const token = await AsyncStorage.getItem('token');
   
-      const response = await fetch(`http://localhost:3333/api/1.0.0/user/${userId}/photo`, {
-        headers: {
-          'X-Authorization': token,
-        },
-      });
-  
-      if (response.ok) {
-        console.log('response',response);
-        const blob = await response.blob(); // Get blob response
-        setProfileImage(URL.createObjectURL(blob)); // Convert blob to URL and set as profile image
-      } else {
-        console.error('Failed to fetch profile picture');
-      }
-    } catch (error) {
-      console.error('Error fetching profile picture:', error);
-    }
-  };
-  
-
   const toggleDarkMode = () => {
-    setIsDarkMode((prev) => !prev);
-  };
+    setIsDarkMode((prev) => !prev)
+  }
 
   const handleChangeDetails = async () => {
     try {
-      const userId = await AsyncStorage.getItem('userId');
-      const token = await AsyncStorage.getItem('token');
+      const userId = await AsyncStorage.getItem('userId')
+      const token = await AsyncStorage.getItem('token')
       const response = await fetch(`http://localhost:3333/api/1.0.0/user/${userId}`, {
         method: 'PATCH',
         headers: {
           'X-Authorization': token,
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           first_name: firstName,
           last_name: lastName,
-          email: email,
-          password: password,
-        }),
-      });
+          email,
+          password
+        })
+      })
       if (response.ok) {
         // Details updated successfully
-        console.log('Success', 'Details updated successfully.');
+        console.log('Success', 'Details updated successfully.')
       } else {
-        throw new Error('Failed to update details');
+        throw new Error('Failed to update details')
       }
     } catch (error) {
-      console.error('Error updating details:', error);
-      Alert.alert('Error', 'Failed to update details. Please try again.');
+      console.error('Error updating details:', error)
+      Alert.alert('Error', 'Failed to update details. Please try again.')
     }
-  };
+  }
 
   const pickImage = async () => {
     // Request Camera Roll Permissions
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
     if (status !== 'granted') {
-      Alert.alert('Error', 'Camera roll permissions are required to upload photos.');
-      return;
+      Alert.alert('Error', 'Camera roll permissions are required to upload photos.')
+      return
     }
 
     // Launch Image Picker
-    let result = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.8,
-    });
+      quality: 0.8
+    })
 
     if (!result.cancelled) {
-      setProfileImage(result.uri); // Store selected image URI
-      uploadImage(result.uri); // Call the upload function
+      setProfileImage(result.uri) // Store selected image URI
+      uploadImage(result.uri) // Call the upload function
     }
-  };
+  }
 
   const uploadImage = async (imageData) => {
     try {
-      const userId = await AsyncStorage.getItem('userId');
-      const token = await AsyncStorage.getItem('token');
-  
+      const userId = await AsyncStorage.getItem('userId')
+      const token = await AsyncStorage.getItem('token')
+
       const response = await fetch(`http://localhost:3333/api/1.0.0/user/${userId}/photo`, {
         method: 'POST',
         headers: {
           'X-Authorization': token,
-          'Content-Type': 'image/png', // Set content type to JPEG
+          'Content-Type': 'image/png' // Set content type to JPEG
         },
-        body: imageData, // Pass the image data directly as the body
-      });
-  
+        body: imageData // Pass the image data directly as the body
+      })
+
       if (response.ok) {
-        console.log('Success', 'Profile picture updated.');
+        console.log('Success', 'Profile picture updated.')
       } else {
-        throw new Error('Image upload failed');
+        throw new Error('Image upload failed')
       }
     } catch (error) {
-      console.error('Error uploading image:', error);
-      Alert.alert('Error', 'Failed to upload image. Please try again.');
+      console.error('Error uploading image:', error)
+      Alert.alert('Error', 'Failed to upload image. Please try again.')
     }
-  };  
+  }
 
   const handleLogout = async () => {
     try {
@@ -176,56 +157,57 @@ export default function Settings() {
         method: 'POST',
         headers: {
           'X-Authorization': await AsyncStorage.getItem('token'),
-          'Content-Type': 'application/json',
-        },
-      });
+          'Content-Type': 'application/json'
+        }
+      })
       if (response.ok) {
-        await AsyncStorage.removeItem('token');
-        navigation.navigate('Login');
+        await AsyncStorage.removeItem('token')
+        navigation.navigate('Login')
       } else {
-        throw new Error('Logout failed');
+        throw new Error('Logout failed')
       }
     } catch (error) {
-      console.error('Error logging out:', error);
-      Alert.alert('Error', 'Failed to log out. Please try again.');
+      console.error('Error logging out:', error)
+      Alert.alert('Error', 'Failed to log out. Please try again.')
     }
-  };
+  }
 
   return (
     <View style={[styles.container5, isDarkMode && styles.darkModeContainer]}>
-      <View style={styles.userInfoContainer}>
+    <View style={styles.userInfoContainer}>
+      {/* Render the profile picture here */}
       {profileImage ? (
-  <Image source={{ uri: profileImage }} style={styles.profileImage} />
-) : (
-  <Ionicons name="person" size={50} color="black" style={styles.profileIcon} />
-)}
-        {userData && (
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>{userData.first_name} {userData.last_name}</Text>
-          </View>
-        )}
-      </View>
+       <Image source={{ uri: profileImage }} style={styles.profileImage} />
+       ) : (
+        <Ionicons name='person' size={50} color='black' style={styles.profileIcon} />
+      )}
+      {userData && (
+        <View style={styles.userInfo}>
+          <Text style={styles.userName}>{userData.first_name} {userData.last_name}</Text>
+        </View>
+      )}
+    </View>
       <TextInput
         style={styles.input1}
         onChangeText={setFirstName}
-        placeholder="First Name"
+        placeholder='First Name'
       />
       <TextInput
         style={styles.input1}
         onChangeText={setLastName}
-        placeholder="Last Name"
+        placeholder='Last Name'
       />
       <TextInput
         style={styles.input1}
         onChangeText={setEmail}
-        placeholder="Email"
-        keyboardType="email-address"
+        placeholder='Email'
+        keyboardType='email-address'
       />
       <TextInput
         style={styles.input1}
         onChangeText={setPassword}
-        placeholder="Password"
-        secureTextEntry={true}
+        placeholder='Password'
+        secureTextEntry
       />
       <TouchableOpacity style={styles.button} onPress={handleChangeDetails}>
         <Text style={styles.buttonText}>Change Details</Text>
@@ -236,21 +218,6 @@ export default function Settings() {
       <TouchableOpacity style={styles.button} onPress={handleLogout}>
         <Text style={styles.buttonText}>Log Out</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={getProfilePic}>
-          <Text style={styles.buttonText}>Get Profile Picture</Text>
-      </TouchableOpacity>
-      <View style={[styles.container, isDarkMode && darkStyles.container]}>
-        <Text style={[styles.title, isDarkMode && darkStyles.title]}>Title</Text>
-        <TouchableOpacity onPress={toggleDarkMode}>
-          <Text>Toggle Dark Mode</Text>
-        </TouchableOpacity>
-        {profileImage && (
-    <Image
-      source={{ uri: profileImage }}
-      style={styles.profileImage}
-    />
-  )}
-      </View>
     </View>
-  );
+  )
 }

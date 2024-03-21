@@ -175,7 +175,9 @@ const styles = StyleSheet.create({
   otherUserMessageText: {
    // color: 'white',
   },
-  currentUserMessageText:{},
+  currentUserMessageText:{
+
+  },
   currentUserMessage: {
     marginBottom: 10,
     borderWidth: 1,
@@ -198,6 +200,11 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 10,
     backgroundColor:'#3498DB',
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
   },
   
 });

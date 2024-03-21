@@ -1,362 +1,348 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, TextInput, FlatList, Alert, Modal, ScrollView, Image, TouchableOpacity } from 'react-native'; // Import ScrollView
-import AsyncStorage from '@react-native-async-storage/async-storage';
-//import ChatDetails from './ChatDetails';
-import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
-import  styles  from './styles';
+import React, { useState, useEffect } from 'react'
+import { StyleSheet, Text, View, Button, TextInput, FlatList, Alert, Modal, ScrollView, Image, TouchableOpacity } from 'react-native' // Import ScrollView
+import AsyncStorage from '@react-native-async-storage/async-storage'
+// import ChatDetails from './ChatDetails';
+import { useNavigation } from '@react-navigation/native'
+import { Ionicons } from '@expo/vector-icons'
+import styles from './styles'
 
-const BASE_URL = 'http://localhost:3333/api/1.0.0';
+const BASE_URL = 'http://localhost:3333/api/1.0.0'
 
-export default function Chat() {
-  const [token, setToken] = useState('');
-  const [userId, setUserId] = useState('');
-  const [chats, setChats] = useState([]);
-  const [selectedChat, setSelectedChat] = useState(null);
-  const [selectedMessageId, setSelectedMessageId] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [chatName, setChatName] = useState('');
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [chatDetails, setChatDetails] = useState(null);
-  const [showNewChatModal, setShowNewChatModal] = useState(false);
-  const [showSecondModal, setShowSecondModal] = useState(false); // State to control the second modal
-  const [showContactsModal, setShowContactsModal] = useState(false);
-  const [contacts, setContacts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [addContactsModalList, setAddContactsModalList] = useState(false);
-  const [removeContactsModalList, setRemoveContactsModalList] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [editedMessage, setEditedMessage] = useState('');
-  const [originalMessage, setOriginalMessage] = useState('');
-
-
-
+export default function Chat () {
+  const [token, setToken] = useState('')
+  const [userId, setUserId] = useState('')
+  const [chats, setChats] = useState([])
+  const [selectedChat, setSelectedChat] = useState(null)
+  const [selectedMessageId, setSelectedMessageId] = useState(null)
+  const [messages, setMessages] = useState([])
+  const [chatName, setChatName] = useState('')
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [chatDetails, setChatDetails] = useState(null)
+  const [showNewChatModal, setShowNewChatModal] = useState(false)
+  const [showSecondModal, setShowSecondModal] = useState(false) // State to control the second modal
+  const [showContactsModal, setShowContactsModal] = useState(false)
+  const [contacts, setContacts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [addContactsModalList, setAddContactsModalList] = useState(false)
+  const [removeContactsModalList, setRemoveContactsModalList] = useState(false)
+  const [editModalVisible, setEditModalVisible] = useState(false)
+  const [editedMessage, setEditedMessage] = useState('')
+  const [originalMessage, setOriginalMessage] = useState('')
 
   useEffect(() => {
     const getTokenAndFetchChats = async () => {
       try {
-        const storedToken = await AsyncStorage.getItem('token');
-        const storedUserId = await AsyncStorage.getItem('userId');
-        setUserId(storedUserId);
-        setToken(storedToken);
-        console.log('Token stored:', storedToken);
+        const storedToken = await AsyncStorage.getItem('token')
+        const storedUserId = await AsyncStorage.getItem('userId')
+        setUserId(storedUserId)
+        setToken(storedToken)
+        console.log('Token stored:', storedToken)
       } catch (error) {
-        console.error('Error getting token:', error);
+        console.error('Error getting token:', error)
       }
-    };
+    }
 
-    getTokenAndFetchChats();
-  }, []);
+    getTokenAndFetchChats()
+  }, [])
 
   useEffect(() => {
     if (token) {
-      fetchChats();
+      fetchChats()
     }
-  }, [token]);
-
+  }, [token])
 
   const fetchContacts = async () => {
     try {
-      setLoading(true);
-      const token = await AsyncStorage.getItem('token');
+      setLoading(true)
+      const token = await AsyncStorage.getItem('token')
       // Reset contacts state to an empty array before fetching new contacts
-      setContacts([]);
+      setContacts([])
       const response = await fetch('http://localhost:3333/api/1.0.0/contacts', {
         headers: {
           'X-Authorization': token,
-          'Content-Type': 'application/json',
-        },
-      });
+          'Content-Type': 'application/json'
+        }
+      })
       if (response.ok) {
-        const data = await response.json();
-  
+        const data = await response.json()
+
         // Fetch profile pictures for each contact
         await Promise.all(data.map(async (contact) => {
           try {
             const photoResponse = await fetch(`http://localhost:3333/api/1.0.0/user/${contact.user_id}/photo`, {
               headers: {
-                'X-Authorization': token,
-              },
-            });
+                'X-Authorization': token
+              }
+            })
             if (photoResponse.ok) {
-              const photoBlob = await photoResponse.blob();
-              const reader = new FileReader();
+              const photoBlob = await photoResponse.blob()
+              const reader = new FileReader()
               reader.onload = () => {
-                const base64data = reader.result.split(',')[1];
-                setContacts(prevContacts => [...prevContacts, { ...contact, photo: base64data }]);
-              };
-              reader.readAsDataURL(photoBlob);
+                const base64data = reader.result.split(',')[1]
+                setContacts(prevContacts => [...prevContacts, { ...contact, photo: base64data }])
+              }
+              reader.readAsDataURL(photoBlob)
             } else {
               // If profile picture not found, set default image
-              setContacts(prevContacts => [...prevContacts, { ...contact, photo: noProfileImage }]);
+              setContacts(prevContacts => [...prevContacts, { ...contact, photo: noProfileImage }])
             }
           } catch (error) {
-            console.error('Error fetching photo:', error);
+            console.error('Error fetching photo:', error)
           }
-        }));
-        setShowContactsModal(true);
+        }))
+        setShowContactsModal(true)
       } else {
-        console.error('Failed to fetch contacts:', response.status);
+        console.error('Failed to fetch contacts:', response.status)
       }
-      setLoading(false);
+      setLoading(false)
     } catch (error) {
-      console.error('Error fetching contacts:', error);
-      setLoading(false);
+      console.error('Error fetching contacts:', error)
+      setLoading(false)
     }
-  };
-  
-  
+  }
 
   const createChat = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('token')
       const response = await fetch('http://localhost:3333/api/1.0.0/chat', {
         method: 'POST',
         headers: {
           'X-Authorization': token,
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           name: chatName // Example name, you can change it as needed
-        }),
-      });
+        })
+      })
       if (response.ok) {
-        const data = await response.json();
-        console.log('Chat ID:', data.chat_id);
+        const data = await response.json()
+        console.log('Chat ID:', data.chat_id)
       } else {
-        console.error('Failed to create chat:', response.status);
+        console.error('Failed to create chat:', response.status)
       }
     } catch (error) {
-      console.error('Error creating chat:', error);
+      console.error('Error creating chat:', error)
     }
-  };
-
+  }
 
   const updateChatInformation = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('token')
       const response = await fetch('http://localhost:3333/api/1.0.0/chat', {
         method: 'PATCH',
         headers: {
           'X-Authorization': token,
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           name: chatName // Example name, you can change it as needed
-        }),
-      });
+        })
+      })
       if (response.ok) {
-        const data = await response.json();
-        console.log('Chat ID:', data.chat_id);
+        const data = await response.json()
+        console.log('Chat ID:', data.chat_id)
       } else {
-        console.error('Failed to edit chat:', response.status);
+        console.error('Failed to edit chat:', response.status)
       }
     } catch (error) {
-      console.error('Error editing chat:', error);
+      console.error('Error editing chat:', error)
     }
-  };
-
+  }
 
   const addUserToChat = async (chatId, userId) => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      const url = `http://localhost:3333/api/1.0.0/chat/${chatId}/user/${userId}`;
+      const token = await AsyncStorage.getItem('token')
+      const url = `http://localhost:3333/api/1.0.0/chat/${chatId}/user/${userId}`
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'X-Authorization': token,
-        },
-      });
+          'X-Authorization': token
+        }
+      })
       if (response.ok) {
-        console.log('User added to chat successfully');
+        console.log('User added to chat successfully')
         // Optionally, you can fetch updated chat details or perform any other actions here
       } else {
-        console.error('Failed to add user to chat:', response.status);
+        console.error('Failed to add user to chat:', response.status)
         // Handle error condition, e.g., show an error message to the user
       }
     } catch (error) {
-      console.error('Error adding user to chat:', error);
+      console.error('Error adding user to chat:', error)
       // Handle error condition, e.g., show an error message to the user
     }
-  };
-
+  }
 
   const removeUserFromChat = async (chatId, userId) => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      const url = `http://localhost:3333/api/1.0.0/chat/${chatId}/user/${userId}`;
+      const token = await AsyncStorage.getItem('token')
+      const url = `http://localhost:3333/api/1.0.0/chat/${chatId}/user/${userId}`
       const response = await fetch(url, {
         method: 'DELETE',
         headers: {
-          'X-Authorization': token,
-        },
-      });
+          'X-Authorization': token
+        }
+      })
       if (response.ok) {
-        console.log('User removed from chat successfully');
+        console.log('User removed from chat successfully')
         // Optionally, you can fetch updated chat details or perform any other actions here
       } else {
-        console.error('Failed to remove user from chat:', response.status);
+        console.error('Failed to remove user from chat:', response.status)
         // Handle error condition, e.g., show an error message to the user
       }
     } catch (error) {
-      console.error('Error removing user from chat:', error);
+      console.error('Error removing user from chat:', error)
       // Handle error condition, e.g., show an error message to the user
     }
-  };
-  
-  
-
+  }
 
   const fetchChats = async () => {
     try {
-      console.log('Fetching chats...');
-      console.log('Token:', token);
+      console.log('Fetching chats...')
+      console.log('Token:', token)
 
       const response = await fetch(`${BASE_URL}/chat`, {
         headers: {
-          'X-authorization': token,
-        },
-      });
+          'X-authorization': token
+        }
+      })
 
-      console.log('Response status:', response.status);
+      console.log('Response status:', response.status)
 
       if (response.ok) {
-        const data = await response.json();
-        console.log('Fetched chats:', data);
-        setChats(data);
+        const data = await response.json()
+        console.log('Fetched chats:', data)
+        setChats(data)
       } else {
-        console.error('Failed to fetch chats:', response.status);
+        console.error('Failed to fetch chats:', response.status)
       }
     } catch (error) {
-      console.error('Error fetching chats:', error);
+      console.error('Error fetching chats:', error)
     }
-  };
+  }
 
   const handleChatSelection = (chatId) => {
-    console.log('Selected chat ID:', chatId);
-    setSelectedChat(chatId);
-    fetchChatDetails(chatId);
-  };
+    console.log('Selected chat ID:', chatId)
+    setSelectedChat(chatId)
+    fetchChatDetails(chatId)
+  }
 
   const fetchChatDetails = async (chatId) => {
     try {
       const response = await fetch(`${BASE_URL}/chat/${chatId}?limit=20&offset=0`, {
         headers: {
-          'X-authorization': token,
-        },
-      });
+          'X-authorization': token
+        }
+      })
       if (response.ok) {
-        const data = await response.json();
-        console.log('chat data',data);
-        setChatDetails(data);
-        setIsModalVisible(true);
+        const data = await response.json()
+        console.log('chat data', data)
+        setChatDetails(data)
+        setIsModalVisible(true)
       } else {
-        console.error('Failed to fetch chat details:', response.status);
+        console.error('Failed to fetch chat details:', response.status)
       }
     } catch (error) {
-      console.error('Error fetching chat details:', error);
+      console.error('Error fetching chat details:', error)
     }
-  };
+  }
 
   const submitChat = async (chatId, message) => {
     try {
-        console.log('Message being sent:', message); // Log the message before sending the request
+      console.log('Message being sent:', message) // Log the message before sending the request
 
-        const token = await AsyncStorage.getItem('token');
-        const response = await fetch(`http://localhost:3333/api/1.0.0/chat/${chatId}/message`, {
-            method: 'POST',
-            headers: {
-                'X-Authorization': token,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                message: message // Send the message in the request body
-            }),
-        });
+      const token = await AsyncStorage.getItem('token')
+      const response = await fetch(`http://localhost:3333/api/1.0.0/chat/${chatId}/message`, {
+        method: 'POST',
+        headers: {
+          'X-Authorization': token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message // Send the message in the request body
+        })
+      })
 
-        if (response.ok) {
-            const data = await response.json();
-            //console.log('Chat ID:', data.chat_id);
-        } else {
-            console.error('Failed to message chat:', response.status);
-        }
+      if (response.ok) {
+        const data = await response.json()
+        // console.log('Chat ID:', data.chat_id);
+      } else {
+        console.error('Failed to message chat:', response.status)
+      }
     } catch (error) {
-        console.error('Error messaging chat:', error);
+      console.error('Error messaging chat:', error)
     }
-};
+  }
 
-const editChat = async (chatId, messageId) => {
-  try {
-      console.log('Message edited to:', editedMessage); // Log the message before sending the request
+  const editChat = async (chatId, messageId) => {
+    try {
+      console.log('Message edited to:', editedMessage) // Log the message before sending the request
 
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('token')
       const response = await fetch(`http://localhost:3333/api/1.0.0/chat/${chatId}/message/${messageId}`, {
-          method: 'PATCH',
-          headers: {
-              'X-Authorization': token,
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-              message: editedMessage // Send the message in the request body
-          }),
-      });
+        method: 'PATCH',
+        headers: {
+          'X-Authorization': token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: editedMessage // Send the message in the request body
+        })
+      })
 
       if (response.ok) {
-          const data = await response.json();
-          //console.log('Chat ID:', data.chat_id);
+        const data = await response.json()
+        // console.log('Chat ID:', data.chat_id);
       } else {
-          console.error('Failed to edit chat:', response.status);
+        console.error('Failed to edit chat:', response.status)
       }
-  } catch (error) {
-      console.error('Error editing chat:', error);
+    } catch (error) {
+      console.error('Error editing chat:', error)
+    }
   }
-};
 
-const deleteChat = async (chatId, messageId) => {
-  try {
-
-      const token = await AsyncStorage.getItem('token');
+  const deleteChat = async (chatId, messageId) => {
+    try {
+      const token = await AsyncStorage.getItem('token')
       const response = await fetch(`http://localhost:3333/api/1.0.0/chat/${chatId}/message/${messageId}`, {
-          method: 'DELETE',
-          headers: {
-              'X-Authorization': token,
-              'Content-Type': 'application/json',
-          },
-      });
+        method: 'DELETE',
+        headers: {
+          'X-Authorization': token,
+          'Content-Type': 'application/json'
+        }
+      })
 
       if (response.ok) {
-          const data = await response.json();
-          console.log('Chat deleted');
+        const data = await response.json()
+        console.log('Chat deleted')
       } else {
-          console.error('Failed to delete chat:', response.status);
+        console.error('Failed to delete chat:', response.status)
       }
-  } catch (error) {
-      console.error('Error deleting chat:', error);
+    } catch (error) {
+      console.error('Error deleting chat:', error)
+    }
   }
-};
 
   const closeModal = () => {
-    setIsModalVisible(false);
-    setChatDetails(null);
-  };
+    setIsModalVisible(false)
+    setChatDetails(null)
+  }
 
   const openEditModal = (item) => {
-    setOriginalMessage(item.message);
-    setEditedMessage(item.message);
-    setEditModalVisible(true);
-    setSelectedMessageId(item.message_id);
-    console.log("Author's User ID:", item.author.user_id);
-  };
+    setOriginalMessage(item.message)
+    setEditedMessage(item.message)
+    setEditModalVisible(true)
+    setSelectedMessageId(item.message_id)
+    console.log("Author's User ID:", item.author.user_id)
+  }
 
   const closeEditModal = () => {
-    setEditModalVisible(false);
-  };
-
+    setEditModalVisible(false)
+  }
 
   const createNewChat = async () => {
     if (!chatName) {
-      Alert.alert('Error', 'Please enter a chat name');
-      return;
+      Alert.alert('Error', 'Please enter a chat name')
+      return
     }
 
     try {
@@ -364,162 +350,168 @@ const deleteChat = async (chatId, messageId) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-authorization': token,
+          'X-authorization': token
         },
-        body: JSON.stringify({ name: chatName }),
-      });
+        body: JSON.stringify({ name: chatName })
+      })
       if (response.ok) {
-        const data = await response.json();
-        const { chat_id } = data;
-        setSelectedChat({ id: chat_id, token });
-        Alert.alert('Success', 'New chat created successfully');
-        setIsModalVisible(false);
-        fetchChats();
+        const data = await response.json()
+        const { chat_id } = data
+        setSelectedChat({ id: chat_id, token })
+        Alert.alert('Success', 'New chat created successfully')
+        setIsModalVisible(false)
+        fetchChats()
       } else {
-        Alert.alert('Error', 'Failed to create new chat');
+        Alert.alert('Error', 'Failed to create new chat')
       }
     } catch (error) {
-      console.error('Error creating new chat:', error);
-      Alert.alert('Error', 'Failed to create new chat');
+      console.error('Error creating new chat:', error)
+      Alert.alert('Error', 'Failed to create new chat')
     }
-  };
+  }
 
   const handleNewChatPress = () => {
-    setShowNewChatModal(true);
-  };
+    setShowNewChatModal(true)
+  }
 
   const closeNewChatModal = () => {
-    setShowNewChatModal(false);
-  };
+    setShowNewChatModal(false)
+  }
 
   const handleSecondModalPress = () => {
-    setShowSecondModal(true);
-  };
+    setShowSecondModal(true)
+  }
 
   const closeSecondModal = () => {
-    setShowSecondModal(false);
-  };
+    setShowSecondModal(false)
+  }
 
   const handleAddContact = () => {
-    setAddContactsModalList(true);
-    fetchContacts();
-    setShowContactsModal(true);
-  };
+    setAddContactsModalList(true)
+    fetchContacts()
+    setShowContactsModal(true)
+  }
 
   const handleRemoveContact = () => {
-    setRemoveContactsModalList(true);
-    fetchContacts();
-    setShowContactsModal(true);
-  };
+    setRemoveContactsModalList(true)
+    fetchContacts()
+    setShowContactsModal(true)
+  }
 
   const handleCloseContactListToAdd = () => {
-    setAddContactsModalList(false);
-    setRemoveContactsModalList(false);
-    setShowContactsModal(false);
-  };
+    setAddContactsModalList(false)
+    setRemoveContactsModalList(false)
+    setShowContactsModal(false)
+  }
 
   const handleSubmitMessage = () => {
-    submitChat(selectedChat, messages);
-    fetchChatDetails(selectedChat);
-
-  };
+    submitChat(selectedChat, messages)
+    fetchChatDetails(selectedChat)
+  }
 
   const handleEdit = () => {
-    editChat(selectedChat, selectedMessageId); // Call editChat with the selectedChat and selectedMessageId
-    fetchChatDetails(selectedChat);
-    closeEditModal();
-  };
-  
+    editChat(selectedChat, selectedMessageId) // Call editChat with the selectedChat and selectedMessageId
+    fetchChatDetails(selectedChat)
+    closeEditModal()
+  }
+
   const handleDelete = () => {
-    deleteChat(selectedChat, selectedMessageId); // Call deleteChat with the selectedChat and selectedMessageId
-    closeEditModal(); // Close the modal after deleting
-    fetchChatDetails(selectedChat); // Fetch updated chat details after deleting
-  };
-  
+    deleteChat(selectedChat, selectedMessageId) // Call deleteChat with the selectedChat and selectedMessageId
+    closeEditModal() // Close the modal after deleting
+    fetchChatDetails(selectedChat) // Fetch updated chat details after deleting
+  }
 
-
-  return ( 
-  <View style = {styles.container2} >
-    <View style = {styles.buttonContainer}>
-      <TouchableOpacity style={styles.button} onPress={handleNewChatPress}>
-         <Text style={styles.whiteText}>New Chat</Text>
-      </TouchableOpacity>
+  return (
+    <View style={styles.container2}>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={handleNewChatPress}>
+          <Text style={styles.whiteText}>New Chat</Text>
+        </TouchableOpacity>
       </View>
       <ScrollView style={{ maxHeight: 1000 }} contentContainerStyle={{ flexGrow: 1 }}>
         {chats.map((chat) => (
           <View key={chat.id}>
             <Text>{chat.name}</Text>
             <TouchableOpacity style={styles.button} onPress={() => handleChatSelection(chat.chat_id)}>
-             <Text style={styles.whiteText}>View Details</Text>
+              <Text style={styles.whiteText}>View Details</Text>
             </TouchableOpacity>
           </View>
         ))}
       </ScrollView>
-      <Modal visible={isModalVisible} animationType="slide">
+      <Modal visible={isModalVisible} animationType='slide'>
         <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-  {/* Plus and Minus Icons */}
-  <Ionicons 
-    name="remove-circle" 
-    size={24} 
-    color="blue" 
-    style={{ alignSelf: 'flex-end' }} 
-    onPress={handleRemoveContact} // Add onPress event handler
-  />
-  <Ionicons 
-    name="add-circle" 
-    size={24} 
-    color="blue" 
-    style={{ alignSelf: 'flex-end' }} 
-    onPress={handleAddContact} // Add onPress event handler
-  />
+          <View style={styles.modalContent}>
+            {/* Plus and Minus Icons */}
+            <Ionicons
+              name='remove-circle'
+              size={24}
+              color='blue'
+              style={{ alignSelf: 'flex-end' }}
+              onPress={handleRemoveContact}
+            />
+            <Ionicons
+              name='add-circle'
+              size={24}
+              color='blue'
+              style={{ alignSelf: 'flex-end' }}
+              onPress={handleAddContact}
+            />
 
-  {/* Information (Chat Name, Creator, Members) */}
-  {chatDetails && (
-    <View>
-      <Text>{chatDetails.name}</Text>
-      <Text>Members:</Text>
-      <FlatList
-        data={chatDetails.members}
-        keyExtractor={(item) => item.user_id.toString()}
-        renderItem={({ item }) => (
-          <Text>
-            {item.first_name} {item.last_name}
-          </Text>
-        )}
-      />
-    </View>
-  )}
-
-  {/* Messages */}
-{chatDetails && (
-            <ScrollView>
-              {chatDetails.messages.map((message) => (
-                <TouchableOpacity key={message.message_id} onPress={() => openEditModal(message)}>
-                  <View style={[
-                    styles.messageContainer,
-                    message.author.user_id == userId ? styles.currentUserMessage : styles.otherUserMessage
-                  ]}>
-                    <Text style={[
-                      styles.clickableMessage,
-                      message.author.user_id == userId ? styles.currentUserMessageText : styles.otherUserMessageText
-                    ]}>
-                      {message.message}
+            {/* Information (Chat Name, Creator, Members) */}
+            {chatDetails && (
+              <View>
+                <Text>{chatDetails.name}</Text>
+                <Text>Members:</Text>
+                <FlatList
+                  data={chatDetails.members}
+                  keyExtractor={(item) => item.user_id.toString()}
+                  renderItem={({ item }) => (
+                    <Text>
+                      {item.first_name} {item.last_name}
                     </Text>
-                    <Text style={styles.authorName}>
-                      {message.author.first_name} {message.author.last_name}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          )}
+                  )}
+                />
+              </View>
+            )}
 
+            {/* Messages */}
+            {chatDetails && (
+              <ScrollView>
+                {chatDetails.messages.map((message) => (
+                  <TouchableOpacity
+                    key={message.message_id}
+                    onPress={() => {
+                    // Check if the message is authored by the current user
+                      if (message.author.user_id == userId) {
+                        openEditModal(message) // Call openEditModal only for messages authored by the current user
+                      }
+                    }}
+                  >
+                    <View style={[
+                      styles.messageContainer,
+                      message.author.user_id == userId ? styles.currentUserMessage : styles.otherUserMessage
+                    ]}
+                    >
+                      <Text style={[
+                        styles.clickableMessage,
+                        message.author.user_id == userId ? styles.currentUserMessageText : styles.otherUserMessageText
+                      ]}
+                      >
+                        {message.message}
+                      </Text>
+                      <Text style={styles.authorName}>
+                        {message.author.first_name} {message.author.last_name}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
 
-  {/* Textbox and Submit Button */}
+            {/* Textbox and Submit Button */}
             <TextInput
               style={styles.input1}
-              placeholder="Enter your message"
+              placeholder='Enter your message'
               onChangeText={(text) => setMessages(text)}
             />
             <TouchableOpacity style={styles.button} onPress={() => handleSubmitMessage(selectedChat, messages)}>
@@ -533,7 +525,7 @@ const deleteChat = async (chatId, messageId) => {
           </View>
         </View>
       </Modal>
-      <Modal visible={showNewChatModal} animationType="slide">
+      <Modal visible={showNewChatModal} animationType='slide'>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             {/* View containing icon and TextInput */}
@@ -541,7 +533,7 @@ const deleteChat = async (chatId, messageId) => {
               {/* TextInput */}
               <TextInput
                 style={styles.input1}
-                placeholder="Enter chat name"
+                placeholder='Enter chat name'
                 onChangeText={(text) => setChatName(text)}
               />
             </View>
@@ -550,65 +542,66 @@ const deleteChat = async (chatId, messageId) => {
               <Text style={styles.whiteText}>Create Chat</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={closeNewChatModal}>
-             <Text style={styles.whiteText}>Closr</Text>
+              <Text style={styles.whiteText}>Closr</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      <Modal visible={showContactsModal} animationType="slide">
+      <Modal visible={showContactsModal} animationType='slide'>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <View style={styles.buttonContainer}>
-            <Text>Contact List</Text>
-            <ScrollView>
-              {contacts.map((contact, index) => (
-                <View key={index}>
-                  <TouchableOpacity 
-                        onPress={() => {
-                            if (addContactsModalList) {
-                                addUserToChat(selectedChat, contact.user_id);
-                            } else if (removeContactsModalList) {
-                                removeUserFromChat(selectedChat, contact.user_id);
-                            }
-                        }}
+              <Text>Contact List</Text>
+              <ScrollView>
+                {contacts.map((contact, index) => (
+                  <View key={index}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        if (addContactsModalList) {
+                          addUserToChat(selectedChat, contact.user_id)
+                        } else if (removeContactsModalList) {
+                          removeUserFromChat(selectedChat, contact.user_id)
+                        }
+                      }}
                     >
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      {/* Render profile picture if available */}
-                      {contact.photo ? (
-                        <Image source={{ uri: `data:image/jpeg;base64,${contact.photo}` }} style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} />
-                      ) : (
-                        <Image source={require('../assets/icon.png')} style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} />
-                      )}
-                      {/* Render contact name */}
-                      <Text>{contact.first_name} {contact.last_name}</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </ScrollView>
-            <TouchableOpacity style={styles.button} onPress={handleCloseContactListToAdd}>
-             <Text style={styles.whiteText}>Close</Text>
-            </TouchableOpacity>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        {/* Render profile picture if available */}
+                        {contact.photo
+                          ? (
+                            <Image source={{ uri: `data:image/jpeg;base64,${contact.photo}` }} style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} />
+                            )
+                          : (
+                            <Image source={require('../assets/icon.png')} style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} />
+                            )}
+                        {/* Render contact name */}
+                        <Text>{contact.first_name} {contact.last_name}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+              <TouchableOpacity style={styles.button} onPress={handleCloseContactListToAdd}>
+                <Text style={styles.whiteText}>Close</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
 
-
-      <Modal visible={editModalVisible} animationType="slide">
+      <Modal visible={editModalVisible} animationType='slide'>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <View style={styles.buttonContainer}>
-            <Text style={styles.buttonText}>Edit Message</Text>
-            <TextInput
-              style={styles.input1}
-              multiline
-              value={editedMessage}
-              onChangeText={setEditedMessage}
-            />
-            <TouchableOpacity style={styles.button} onPress={handleEdit}>
-               <Text style={styles.buttonText}>Edit</Text>
+              <Text style={styles.buttonText}>Edit Message</Text>
+              <TextInput
+                style={styles.input1}
+                multiline
+                value={editedMessage}
+                onChangeText={setEditedMessage}
+              />
+              <TouchableOpacity style={styles.button} onPress={handleEdit}>
+                <Text style={styles.buttonText}>Edit</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.button} onPress={handleDelete}>
                 <Text style={styles.buttonText}>Delete</Text>
@@ -621,10 +614,6 @@ const deleteChat = async (chatId, messageId) => {
         </View>
       </Modal>
 
-
-
-      
-
     </View>
-  );
+  )
 }
