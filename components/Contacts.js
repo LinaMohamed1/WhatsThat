@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { Text, View, Image, ScrollView } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { contactBoxWidth } from './styles' // Import contactBoxWidth from styles
+import { contactBoxWidth } from './styles'//needed to import separately otherwise caused issue for unknown reason
 import styles from './styles'
-import noProfileImage from '../assets/profpic.jpeg'
+import noProfileImage from '../assets/profpic.jpeg'//the default profile pic before one gets set
 
 export default function Chat () {
   const [contacts, setContacts] = useState([])
   const [loading, setLoading] = useState(true)
-
+//fetches all contacts upon entering the component
   useEffect(() => {
     const fetchContacts = async () => {
       try {
@@ -21,7 +21,7 @@ export default function Chat () {
         })
         const data = await response.json()
 
-        // Fetch profile pictures for each contact
+        // etch profile pictures for each contact. similar to settings but slightly different as theres many contacts to render images for
         const contactsWithImages = await Promise.all(data.map(async (contact) => {
           try {
             const photoResponse = await fetch(`http://localhost:3333/api/1.0.0/user/${contact.user_id}/photo`, {
@@ -38,7 +38,7 @@ export default function Chat () {
               }
               reader.readAsDataURL(photoBlob)
             } else {
-              // If profile picture not found, set default image
+              // setting default image for users that dont have an image response
               setContacts(prevContacts => [...prevContacts, { ...contact, photo: noProfileImage }])
             }
           } catch (error) {
@@ -61,7 +61,6 @@ export default function Chat () {
         <Text>Loading...</Text>
       ) : (
         <View>
-          <Text>Welcome to the Contacts Screen!</Text>
           <Text>Contacts:</Text>
           <ScrollView style={{ maxHeight: 500 }}> {/* Adjust maxHeight to your needs */}
             <View>

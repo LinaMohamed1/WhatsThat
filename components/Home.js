@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, TextInput, Button, FlatList, Switch, TouchableOpacity, Modal, TouchableHighlight } from 'react-native'
+import { Text, View, TextInput, FlatList, Switch, TouchableOpacity, Modal, TouchableHighlight } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Ionicons } from '@expo/vector-icons'
 import styles from './styles'
@@ -10,12 +10,12 @@ export default function Home () {
   const [isLoading, setIsLoading] = useState(false)
   const [token, setToken] = useState('')
   const [userId, setUserId] = useState('')
-  const [searchInContacts, setSearchInContacts] = useState(true) // Initially set to true for 'contacts'
+  const [searchInContacts, setSearchInContacts] = useState(true)
   const [searchResultsContacts, setSearchResultsContacts] = useState([])
   const [searchResultsAll, setSearchResultsAll] = useState([])
   const [blockedUsers, setBlockedUsers] = useState([])
   const [modalVisible, setModalVisible] = useState(false)
-
+//gets token and userid and stores them in state to be used throughout the component
   useEffect(() => {
     const getTokenAndUserId = async () => {
       try {
@@ -55,11 +55,11 @@ export default function Home () {
       }
       const data = await response.json()
 
-      const userIdNumber = parseInt(userId, 10) // Parse userId to an integer
+      const userIdNumber = parseInt(userId, 10) //parsing userid to integer
       const filteredData = data.filter(item => item.user_id !== userIdNumber)
       setSearchResults(filteredData)
 
-      console.log(`Fetched data for ${searchIn}:`, data) // Add this console log statement
+      console.log(`Fetched data for ${searchIn}:`, data)
     } catch (error) {
       console.error(`Error fetching data for ${searchIn}:`, error)
     } finally {
@@ -83,7 +83,6 @@ export default function Home () {
       console.log('Contact added successfully')
       fetchData('all', setSearchResultsAll)
       fetchData('contacts', setSearchResultsContacts)
-      // You can perform additional actions here after successfully adding the contact
     } catch (error) {
       console.error('Error adding contact:', error)
     }
@@ -103,7 +102,6 @@ export default function Home () {
       console.log('Contact removed successfully')
       fetchData('all', setSearchResultsAll)
       fetchData('contacts', setSearchResultsContacts)
-      // You can perform additional actions here after successfully removing the contact
     } catch (error) {
       console.error('Error removing contact:', error)
     }
@@ -123,7 +121,6 @@ export default function Home () {
       console.log('Contact blocked successfully')
       fetchData('all', setSearchResultsAll)
       fetchData('contacts', setSearchResultsContacts)
-      // You can perform additional actions here after successfully blocking the contact
     } catch (error) {
       console.error('Error blocking contact:', error)
     }
@@ -143,7 +140,6 @@ export default function Home () {
       console.log('User unblocked successfully')
       fetchData('all', setSearchResultsAll)
       fetchData('contacts', setSearchResultsContacts)
-      // Additional actions after successfully unblocking the user can be added here
     } catch (error) {
       console.error('Error unblocking user:', error)
     }
@@ -172,15 +168,14 @@ export default function Home () {
     if (searchResultsContacts.some(contact => contact.user_id === item.user_id)) {
       removeContact(item.user_id)
     } else {
-      // Handle other button presses here if needed
     }
   }
 
   const handleBlockUser = async (item) => {
     try {
-      // Block the user
+      
       await blockContact(item.user_id)
-      // Filter out the blocked user from searchResults
+    
       setSearchResults(prevResults => prevResults.filter(user => user.user_id !== item.user_id))
     } catch (error) {
       console.error('Error handling block:', error)
@@ -197,7 +192,6 @@ export default function Home () {
 
   return (
     <View style={styles.container1}>
-      <Text>Welcome to the Home Screen!</Text>
       <TextInput
         style={styles.searchInput}
         placeholder='Search contacts...'

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, Button, TextInput, FlatList, Alert, Modal, ScrollView, Image, TouchableOpacity } from 'react-native' // Import ScrollView
+import { Text, View, TextInput, FlatList, Alert, Modal, ScrollView, Image, TouchableOpacity } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-// import ChatDetails from './ChatDetails';
-import { useNavigation } from '@react-navigation/native'
+// import ChatDetails from './ChatDetails'; old component. decided to merge into one large component here
+import { useNavigation } from '@react-navigation/native' //used when we had the chat components more compartmentalsied
 import { Ionicons } from '@expo/vector-icons'
 import styles from './styles'
 
@@ -19,7 +19,7 @@ export default function Chat () {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [chatDetails, setChatDetails] = useState(null)
   const [showNewChatModal, setShowNewChatModal] = useState(false)
-  const [showSecondModal, setShowSecondModal] = useState(false) // State to control the second modal
+  const [showSecondModal, setShowSecondModal] = useState(false) 
   const [showContactsModal, setShowContactsModal] = useState(false)
   const [contacts, setContacts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -28,6 +28,7 @@ export default function Chat () {
   const [editModalVisible, setEditModalVisible] = useState(false)
   const [editedMessage, setEditedMessage] = useState('')
   const [originalMessage, setOriginalMessage] = useState('')
+  const [updateChatInformationModal, setUpdateChatInformationModal] = useState(false);
 
   useEffect(() => {
     const getTokenAndFetchChats = async () => {
@@ -50,12 +51,11 @@ export default function Chat () {
       fetchChats()
     }
   }, [token])
-
+//some of the below functions are used or variants are used in other components. perhaps we could have exported them from a file instead of re-writing?
   const fetchContacts = async () => {
     try {
       setLoading(true)
       const token = await AsyncStorage.getItem('token')
-      // Reset contacts state to an empty array before fetching new contacts
       setContacts([])
       const response = await fetch('http://localhost:3333/api/1.0.0/contacts', {
         headers: {
@@ -66,7 +66,6 @@ export default function Chat () {
       if (response.ok) {
         const data = await response.json()
 
-        // Fetch profile pictures for each contact
         await Promise.all(data.map(async (contact) => {
           try {
             const photoResponse = await fetch(`http://localhost:3333/api/1.0.0/user/${contact.user_id}/photo`, {
@@ -83,7 +82,6 @@ export default function Chat () {
               }
               reader.readAsDataURL(photoBlob)
             } else {
-              // If profile picture not found, set default image
               setContacts(prevContacts => [...prevContacts, { ...contact, photo: noProfileImage }])
             }
           } catch (error) {
@@ -111,7 +109,7 @@ export default function Chat () {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          name: chatName // Example name, you can change it as needed
+          name: chatName // gets chatname from textbox
         })
       })
       if (response.ok) {
@@ -125,22 +123,22 @@ export default function Chat () {
     }
   }
 
-  const updateChatInformation = async () => {
+  const updateChatInformation = async (chatId) => {
     try {
       const token = await AsyncStorage.getItem('token')
-      const response = await fetch('http://localhost:3333/api/1.0.0/chat', {
+      const response = await fetch(`http://localhost:3333/api/1.0.0/chat/${chatId}`, {
         method: 'PATCH',
         headers: {
           'X-Authorization': token,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          name: chatName // Example name, you can change it as needed
+          name: editedMessage 
         })
       })
       if (response.ok) {
         const data = await response.json()
-        console.log('Chat ID:', data.chat_id)
+        console.log('success')
       } else {
         console.error('Failed to edit chat:', response.status)
       }
@@ -161,14 +159,12 @@ export default function Chat () {
       })
       if (response.ok) {
         console.log('User added to chat successfully')
-        // Optionally, you can fetch updated chat details or perform any other actions here
-      } else {
+        }
+         else {
         console.error('Failed to add user to chat:', response.status)
-        // Handle error condition, e.g., show an error message to the user
       }
     } catch (error) {
       console.error('Error adding user to chat:', error)
-      // Handle error condition, e.g., show an error message to the user
     }
   }
 
@@ -184,14 +180,11 @@ export default function Chat () {
       })
       if (response.ok) {
         console.log('User removed from chat successfully')
-        // Optionally, you can fetch updated chat details or perform any other actions here
       } else {
         console.error('Failed to remove user from chat:', response.status)
-        // Handle error condition, e.g., show an error message to the user
       }
     } catch (error) {
       console.error('Error removing user from chat:', error)
-      // Handle error condition, e.g., show an error message to the user
     }
   }
 
@@ -200,7 +193,7 @@ export default function Chat () {
       console.log('Fetching chats...')
       console.log('Token:', token)
 
-      const response = await fetch(`${BASE_URL}/chat`, {
+      const response = await fetch(`http://localhost:3333/api/1.0.0/chat`, {
         headers: {
           'X-authorization': token
         }
@@ -228,7 +221,7 @@ export default function Chat () {
 
   const fetchChatDetails = async (chatId) => {
     try {
-      const response = await fetch(`${BASE_URL}/chat/${chatId}?limit=20&offset=0`, {
+      const response = await fetch(`http://localhost:3333/api/1.0.0/chat/${chatId}?limit=20&offset=0`, {
         headers: {
           'X-authorization': token
         }
@@ -378,12 +371,12 @@ export default function Chat () {
     setShowNewChatModal(false)
   }
 
-  const handleSecondModalPress = () => {
-    setShowSecondModal(true)
+  const handleUpdateChatInformationModal = () => {
+    setUpdateChatInformationModal(true)
   }
 
-  const closeSecondModal = () => {
-    setShowSecondModal(false)
+  const closeUpdateChatInformationModal = () => {
+    setUpdateChatInformationModal(false)
   }
 
   const handleAddContact = () => {
@@ -421,6 +414,10 @@ export default function Chat () {
     fetchChatDetails(selectedChat) // Fetch updated chat details after deleting
   }
 
+  const handleUpdateChatInformation = (selectedChat) =>{
+    updateChatInformation(selectedChat)
+  };
+
   return (
     <View style={styles.container2}>
       <View style={styles.buttonContainer}>
@@ -440,6 +437,9 @@ export default function Chat () {
       </ScrollView>
       <Modal visible={isModalVisible} animationType='slide'>
         <View style={styles.modalContainer}>
+        <TouchableOpacity style={styles.button} onPress={handleUpdateChatInformationModal}>
+          <Text style={styles.whiteText}>Change Chat Name</Text>
+        </TouchableOpacity>
           <View style={styles.modalContent}>
             {/* Plus and Minus Icons */}
             <Ionicons
@@ -607,6 +607,28 @@ export default function Chat () {
                 <Text style={styles.buttonText}>Delete</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.button} onPress={closeEditModal}>
+                <Text style={styles.buttonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={updateChatInformationModal} animationType='slide'>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.buttonContainer}>
+              <Text style={styles.buttonText}>Edit Chat Name</Text>
+              <TextInput
+                style={styles.input1}
+                multiline
+                value={editedMessage}
+                onChangeText={setEditedMessage}
+              />
+              <TouchableOpacity style={styles.button} onPress={handleUpdateChatInformation(selectedChat)}>
+                <Text style={styles.buttonText}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={closeUpdateChatInformationModal}>
                 <Text style={styles.buttonText}>Close</Text>
               </TouchableOpacity>
             </View>

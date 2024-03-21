@@ -13,9 +13,9 @@ import styles from './components/styles'
 
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator()
-
+//note: all components have 'isdarkmode' but didnt implement 
 export default function App () {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)//starts logged out and redirects to login page
   const [isDarkMode, setIsDarkMode] = useState(false)
 
   const handleLogin = () => {
@@ -46,7 +46,7 @@ export default function App () {
               {() => (
                 <Tab.Navigator
                   screenOptions={{
-                    tabBarStyle: { backgroundColor: '#EAFAF1' } // Background color for the tab navigator
+                    tabBarStyle: { backgroundColor: '#EAFAF1' } // background color for the tab navigator
                   }}
                 >
                   <Tab.Screen name='Home'>

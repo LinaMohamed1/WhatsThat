@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native'
+import { Text, View, TextInput, TouchableOpacity } from 'react-native'
 import styles from './styles'
 
 export default function Register ({ navigation }) {
@@ -24,7 +24,7 @@ export default function Register ({ navigation }) {
       })
 
       if (response.ok) {
-        navigation.navigate('Login')
+        navigation.navigate('Login')//once registered redirects to login for user input to log in
       } else {
         console.error('Registration failed')
       }
