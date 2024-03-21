@@ -41,7 +41,7 @@ export default function Settings () {
         setLastName(userData.last_name);
         setEmail(userData.email);
   
-        // Fetches profile picture
+        // fetches profile picture from api
         const profilePicResponse = await fetch(`http://localhost:3333/api/1.0.0/user/${userId}/photo`, {
           headers: {
             'X-Authorization': token
@@ -125,7 +125,7 @@ export default function Settings () {
   
       console.log('Image picker result:', result);
   
-      if (!result.cancelled && result.assets && result.assets.length > 0) {
+      if (!result.canceled && result.assets && result.assets.length > 0) {
         const selectedImage = result.assets[0];
         if (selectedImage.uri) {
           console.log('Selected image URI:', selectedImage.uri);
@@ -139,40 +139,36 @@ export default function Settings () {
       }
     } catch (error) {
       console.error('Error selecting image:', error);
-      // Handle error...
     }
   }  
 
   const sendToServer = async (imageUri) => {
     try {
-      const currentUserId = await AsyncStorage.getItem('userId');
+      const userID = await AsyncStorage.getItem('userId');
       const token = await AsyncStorage.getItem('token');
     
-      // Read image file
+      // reads image file
       const response = await fetch(imageUri);
       const imageBlob = await response.blob();
   
-      // Upload image to server
-      const uploadResponse = await fetch(`http://localhost:3333/api/1.0.0/user/${currentUserId}/photo`, {
+  
+      const uploadResponse = await fetch(`http://localhost:3333/api/1.0.0/user/${userId}/photo`, {
         method: 'POST',
         headers: {
           'X-Authorization': token,
-          'Content-Type': 'image/jpeg' // Assuming the image format is JPEG, adjust if needed
+          'Content-Type': 'image/jpeg'//jpeg as placeholder.both png and jpg are supported
         },
         body: imageBlob
       });
     
       if (uploadResponse.ok) {
         console.log('Image uploaded successfully');
-        // Set the profileImage state with the uploaded image URI
-        setProfileImage(imageUri); // or any other URI that represents the uploaded image
-        // Handle success
+        setProfileImage(imageUri);//sets to render in page
       } else {
         throw new Error('Failed to upload image');
       }
     } catch (error) {
       console.error('Error uploading image:', error);
-      // Handle error
     }
   };  
 

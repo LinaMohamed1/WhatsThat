@@ -284,7 +284,6 @@ export default function Chat () {
 
       if (response.ok) {
         const data = await response.json()
-        // console.log('Chat ID:', data.chat_id);
       } else {
         console.error('Failed to edit chat:', response.status)
       }
@@ -332,36 +331,6 @@ export default function Chat () {
     setEditModalVisible(false)
   }
 
-  const createNewChat = async () => {
-    if (!chatName) {
-      Alert.alert('Error', 'Please enter a chat name')
-      return
-    }
-
-    try {
-      const response = await fetch(`${BASE_URL}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-authorization': token
-        },
-        body: JSON.stringify({ name: chatName })
-      })
-      if (response.ok) {
-        const data = await response.json()
-        const { chat_id } = data
-        setSelectedChat({ id: chat_id, token })
-        Alert.alert('Success', 'New chat created successfully')
-        setIsModalVisible(false)
-        fetchChats()
-      } else {
-        Alert.alert('Error', 'Failed to create new chat')
-      }
-    } catch (error) {
-      console.error('Error creating new chat:', error)
-      Alert.alert('Error', 'Failed to create new chat')
-    }
-  }
 
   const handleNewChatPress = () => {
     setShowNewChatModal(true)
@@ -403,15 +372,15 @@ export default function Chat () {
   }
 
   const handleEdit = () => {
-    editChat(selectedChat, selectedMessageId) // Call editChat with the selectedChat and selectedMessageId
+    editChat(selectedChat, selectedMessageId) 
     fetchChatDetails(selectedChat)
     closeEditModal()
   }
 
   const handleDelete = () => {
-    deleteChat(selectedChat, selectedMessageId) // Call deleteChat with the selectedChat and selectedMessageId
-    closeEditModal() // Close the modal after deleting
-    fetchChatDetails(selectedChat) // Fetch updated chat details after deleting
+    deleteChat(selectedChat, selectedMessageId)
+    closeEditModal() 
+    fetchChatDetails(selectedChat)
   }
 
   const handleUpdateChatInformation = (selectedChat) =>{
@@ -457,7 +426,7 @@ export default function Chat () {
               onPress={handleAddContact}
             />
 
-            {/* Information (Chat Name, Creator, Members) */}
+            {/* Information about the chat */}
             {chatDetails && (
               <View>
                 <Text>{chatDetails.name}</Text>
@@ -613,7 +582,7 @@ export default function Chat () {
           </View>
         </View>
       </Modal>
-
+      {/*modal added for the changing of chatnames too*/}
       <Modal visible={updateChatInformationModal} animationType='slide'>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>

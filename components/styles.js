@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 10,
     backgroundColor: '#D1F2EB',
-    alignSelf: 'flex-end', // Align to the right for other users' messages
+    alignSelf: 'flex-end', // align to the right for other users' messages
   },
   messageContainer: {
     marginBottom: 10,
